@@ -1,0 +1,46 @@
+string add(string a, string b)
+{
+	a = a.substr(a.find_first_not_of('0'));
+	b = b.substr(b.find_first_not_of('0'));
+	long long len1 = a.length();
+	long long len2 = b.length();
+	long long len = max(len1, len2) + 10;
+	string ans(len, '0');
+	reverse(a.begin(), a.end());
+	reverse(b.begin(), b.end());
+	for (int i = 0; i<len1; i++)
+		ans[i] = a[i];
+	int tmp = 0;
+	for (int i = 0; i<len; i++)
+	{
+		if (len1 >= len2)//考虑a>=b
+		{
+			if (i<len2)
+			{
+				tmp += (ans[i] - '0') + (b[i] - '0');
+			}
+			else
+			{
+				tmp += (ans[i] - '0');
+			}
+			ans[i] = tmp % 10 + '0';
+			tmp /= 10;
+		}
+		else if (len1<len2)//a<b
+		{
+			if (i<len1)
+			{
+				tmp += (ans[i] - '0') + (b[i] - '0');
+
+			}
+			else if (i<len2)
+			{
+				tmp += (b[i] - '0');
+			}
+			ans[i] = tmp % 10 + '0';
+			tmp /= 10;
+		}
+	}
+	reverse(ans.begin(), ans.end());
+	return ans.substr(ans.find_first_not_of('0'));
+}

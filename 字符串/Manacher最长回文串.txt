@@ -1,0 +1,32 @@
+char s[N], str[N];
+int Len[N], sz;
+
+void Init() {
+	sz = strlen(s), MEM(str, 0);
+	int k = 0;
+	str[k++] = '%';
+	for (int i = 0; i < sz; i++) {
+		str[k++] = '#';
+		str[k++] = s[i];
+	}
+	str[k++] = '#';
+	sz = strlen(str);
+}
+int Manacher() {
+	int idx = 0, mx = 0, ans = 0;
+	Len[0] = 0;
+	for (int i = 1; i < sz; i++) {
+		if (mx > i)
+			Len[i] = min(mx - i, Len[2 * idx - 1]);
+		else
+			Len[i] = 1;
+		while (str[i + Len[i]] == str[i - Len[i]])
+			Len[i]++;
+		if (mx < Len[i] + i) {
+			mx = Len[i] + i;
+			idx = i;
+			Max(ans, Len[i]);
+		}
+	}
+	return ans - 1;
+}

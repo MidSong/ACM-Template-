@@ -1,0 +1,27 @@
+int a[M], b[N], nxt[N];
+int n, m;
+
+void Get_Next() {
+	MEM(nxt, -1);
+	nxt[1] = 0;
+	int i = 1, j = 0;
+	while (i <= m) {
+		if (!j || b[i] == b[j])
+			nxt[++i] = ++j;
+		else
+			j = nxt[j];
+	}
+}
+int KMP() {
+	Get_Next();
+	int i = 1, j = 1, ans = 0;
+	while (i <= n) {
+		if (!j || a[i] == b[j])
+			i++, j++;
+		else
+			j = nxt[j];
+		if (j == m + 1)
+			return i - m;   // 匹配上
+	}
+	return -1;
+}

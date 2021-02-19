@@ -1,0 +1,28 @@
+int trie[N * 32][3], pos;
+int vis[N * 32];
+
+void Init() {
+	pos = 0;
+	MEM(vis, 0), MEM(trie, 0);
+}
+void Add(int x) {
+	int c = 0, u;
+	for (int i = 31; i >= 0; i--) {
+		u = x >> i & 1;
+		if (trie[c][u] == 0)
+			trie[c][u] = ++pos;
+		c = trie[c][u];
+	}
+	vis[c] = x;
+}
+int Ask(int x) {
+	int c = 0, u;
+	for (int i = 31; i >= 0; i--) {
+		u = x >> i & 1;
+		if (trie[c][u ^ 1])
+			c = trie[c][u ^ 1];
+		else
+			c = trie[c][u];
+	}
+	return vis[c];
+}

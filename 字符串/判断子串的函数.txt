@@ -1,0 +1,2 @@
+v[i].find(str) != string::npos
+//能找到

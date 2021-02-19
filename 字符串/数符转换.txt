@@ -1,0 +1,36 @@
+字符串转换成数字 ：
+
+浮点型 ：
+string s;
+cin >> s;
+double tmp = stod(s);
+
+
+int型 ：
+string s;
+cin >> s;
+int ans = stoi(s);
+
+long long型 ：
+string s;
+cin >> s;
+ll ans = stoll(s);
+
+
+数字转换成字符串 ：
+
+任意型 ：
+
+double/int/long long ans ;
+cin >> ans;
+string s = to_string(ans);
+
+查找某个字符串是否是另一个字符串的子串 ：
+
+string line, s;
+cin >> line >> s;
+if (line.find(s) != string :: npos ) 表示s是line的子串
+
+字符串大小写转换 ：
+transform(a.begin(), a.end(), a.begin(), :: tolower); 变小写
+transform(a.begin(), a.end(), a.begin(), :: toupper);

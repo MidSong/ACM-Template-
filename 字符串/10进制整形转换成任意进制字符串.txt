@@ -1,0 +1,4 @@
+	char num[110];
+	int ans = 100;
+	_itoa_s(ans, num, 2);
+	cout << num << endl;

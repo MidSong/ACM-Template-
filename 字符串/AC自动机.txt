@@ -1,0 +1,66 @@
+int trie[N][30], fail[N], sum[N];
+int n, tot;
+char s[N];
+
+void Init() {
+	MEM(sum, 0), MEM(fail, -1), MEM(trie, 0);
+	tot = 0;
+}
+void Insert(char *s) {
+	int rt = 0, sz = strlen(s);
+	for (int i = 0; i < sz; i++) {
+		int pos = s[i] - 'a';
+		if (!trie[rt][pos])
+			trie[rt][pos] = ++tot;
+		rt = trie[rt][pos];
+	}
+	sum[rt]++;
+}
+void Getfail() {
+	queue <int> q;
+	for (int i = 0; i < 26; i++) {
+		if (trie[0][i]) {
+			fail[trie[0][i]] = 0;
+			q.push(trie[0][i]);
+		}
+	}
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+		for (int i = 0; i < 26; i++) {
+			if (trie[u][i]) {
+				fail[trie[u][i]] = trie[fail[u]][i];
+				q.push(trie[u][i]);
+			}
+			else
+				trie[u][i] = trie[fail[u]][i];
+		}
+	}
+}
+int Ask(char *s) {
+	int rt = 0, ans = 0;
+	int sz = strlen(s);
+	for (int i = 0; i < sz; i++) {
+		int id = s[i] - 'a';
+		rt = trie[rt][id];
+		for (int j = rt; j != -1 && sum[j] != -1; j = fail[j]) {
+			ans += sum[j];
+			sum[j] = -1;
+		}
+	}
+	return ans;
+}
+
+int main()
+{
+	sc("%d", &n);
+	Init();
+	for (int i = 0; i < n; i++) {
+		sc("%s", s);
+		Insert(s);
+	}
+	Getfail();
+	sc("%s", s);
+	printf("%d\n", Ask(s));
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

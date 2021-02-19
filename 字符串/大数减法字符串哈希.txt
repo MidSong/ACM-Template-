@@ -1,0 +1,10 @@
+ll w[N], hs[N];
+ll Get(int l, int r) {
+	return ((hs[r] - hs[l - 1] * w[r - l + 1]) % Mod + Mod) % Mod;
+}
+w[0] = 1;
+for (int i = 1; i < N; i++)
+	w[i] = w[i - 1] * 10 % Mod;
+for (int i = 1; i <= n; i++) {
+	hs[i] = (hs[i - 1] * 10 + a[i]) % Mod; // a为字符串代表的数字
+}
