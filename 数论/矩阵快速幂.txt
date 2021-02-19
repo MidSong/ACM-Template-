@@ -1,0 +1,30 @@
+ll n, k;
+struct Mx   // 矩阵
+{
+	ll a[110][110];    
+	Mx(){           // 初始化
+		memset(a, 0, sizeof a);
+	}
+	void build(){     // 答案矩阵
+		for (int i = 1; i <= n; ++i)
+			a[i][i] = 1;
+	}
+}ans;
+Mx fuc (const Mx &x, const Mx &y){ // j矩阵乘法
+	Mx z;
+	for (int k = 1; k <= n; ++k)
+		for (int i = 1; i <= n; ++i)
+			for (int j = 1; j <= n; ++j)
+				z.a[i][j] = (z.a[i][j] + x.a[i][k] * y.a[k][j] % MOD) % MOD;
+	return z;
+}
+Mx Mpow(ll k) {  // 矩阵快速幂
+	Mx now; now.build();
+	while (k) {
+		if (k & 1)
+			now = fuc(now, ans);
+		ans = fuc(ans, ans);
+		k >>= 1;
+	}
+	return now;
+}

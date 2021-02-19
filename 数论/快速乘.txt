@@ -1,0 +1,10 @@
+ll qmul(ll a, ll b){ //快速乘
+	ll r = 0;
+	while (b){
+		if (b & 1)
+			r = (r + a) % Mod;
+		a = (a + a) % Mod;
+		b >>= 1;
+	}
+	return r;
+}

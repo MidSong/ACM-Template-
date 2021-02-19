@@ -1,0 +1,4 @@
+gcd(x^a-1,x^b-1)=x^gcd(a,b)-1
+
+
+gcd（a，b）=gcd（a,b-a)

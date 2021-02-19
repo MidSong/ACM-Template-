@@ -1,0 +1,16 @@
+ll a[N], ans, tot, sum;
+int n;
+
+int main()
+{
+	cin >> n;
+	for (int i = 1; i <= n; i++) {
+		sc("%lld", &a[i]);
+		tot = (tot % MOD + a[i] * a[i] % MOD) % MOD;
+		sum = (sum % MOD + a[i]) % MOD;
+	}
+	for (int i = 1; i <= n; i++)
+		ans = (ans % MOD + (n - 1) * a[i] % MOD * a[i] % MOD + (tot - a[i] * a[i] % MOD + MOD) % MOD - 2 * a[i] * (sum - a[i]) % MOD + MOD) % MOD;
+	cout << ans * fpow(2ll, MOD - 2) % MOD << endl;
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}
