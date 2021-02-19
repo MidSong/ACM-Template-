@@ -1,0 +1,70 @@
+// 滚动数组优化
+int tb[2][N][N];
+int lg[N], n, m, s;
+
+void ST() {
+	lg[0] = -1;
+	for (int i = 1; i <= s; i++)
+		lg[i] = lg[i >> 1] + 1;
+	for (int i = 1; i <= n; i++)
+		for (int j = 1; j <= m; j++)
+			tb[0][i][j] = i * j / gcd(i, j);
+	for (int k = 1; k <= lg[s]; k++) {
+		int kk = k & 1;
+		for (int i = 1; i + (1 << k) - 1 <= n; i++) {
+			for (int j = 1; j + (1 << k) - 1 <= m; j++) {
+				tb[kk][i][j] = max({ tb[!kk][i][j], tb[!kk][i][j + (1 << k - 1)],
+					tb[!kk][i + (1 << k - 1)][j], tb[!kk][i + (1 << k - 1)][j + (1 << k - 1)] });
+			}
+		}
+	}
+}
+int Ask(int x1, int y1, int k) {
+	int x2 = x1 + k - (1 << lg[k]), y2 = y1 + k - (1 << lg[k]); k = lg[k] & 1;
+	return max({ tb[k][x1][y1], tb[k][x1][y2], tb[k][x2][y1], tb[k][x2][y2] });
+}
+
+// 普通版本
+int a[N][N];
+int mx[N][N][15], mi[N][N][15];
+int Log[N], n, m, s;
+
+void Init() {
+	for (int i = 2; i < N; i++)
+		Log[i] = Log[i >> 1] + 1;
+	for (int i = 1; i <= n; i++)
+		for (int j = 1; j <= m; j++)
+			mx[i][j][0] = mi[i][j][0] = a[i][j];
+	for (int k = 1; k <= 12; k++) {
+		for (int i = 1; i + (1 << k) - 1 <= n; i++) {
+			for (int j = 1; j + (1 << k) - 1 <= m; j++) {
+				int g1 = mx[i][j][k - 1];
+				int g2 = mx[i + (1 << (k - 1))][j][k - 1];
+				int g3 = mx[i][j + (1 << (k - 1))][k - 1];
+				int g4 = mx[i + (1 << k - 1)][j + (1 << k - 1)][k - 1];
+				mx[i][j][k] = max({ g1, g2, g3, g4 });
+
+				g1 = mi[i][j][k - 1];
+				g2 = mi[i + (1 << (k - 1))][j][k - 1];
+				g3 = mi[i][j + (1 << (k - 1))][k - 1];
+				g4 = mi[i + (1 << k - 1)][j + (1 << k - 1)][k - 1];
+				mi[i][j][k] = min({ g1, g2, g3, g4 });
+			}
+		}
+	}
+}
+int Ask(int x, int y, int sz) {
+	int k = Log[sz];
+	int g1 = mx[x][y][k];
+	int g2 = mx[x + sz - (1 << k)][y][k];
+	int g3 = mx[x][y + sz - (1 << k)][k];
+	int g4 = mx[x + sz - (1 << k)][y + sz - (1 << k)][k];
+	int max_ = max({ g1, g2, g3, g4 });
+
+	g1 = mi[x][y][k];
+	g2 = mi[x + sz - (1 << k)][y][k];
+	g3 = mi[x][y + sz - (1 << k)][k];
+	g4 = mi[x + sz - (1 << k)][y + sz - (1 << k)][k];
+	int min_ = min({ g1, g2, g3, g4 });
+	return max_ - min_;
+}

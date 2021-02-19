@@ -1,0 +1,49 @@
+// 存图
+vector <int> G[N];
+int fz[N], son[N], sz[N];
+int idx[N], dfn;
+int dep[N], top[N];
+int n, q;
+
+void DFS1(int x, int fa, int dist) {
+	fz[x] = fa;     // 父亲
+	dep[x] = dist;  //深度
+	sz[x] = 1;      // 子树大小
+	son[x] = 0;
+
+	int mx = 0;   // 重儿子个数
+	for (auto v : G[x]) {
+		if (v == fa)
+			continue;
+		DFS1(v, x, dist + 1);
+		sz[x] += sz[v];
+		if (sz[v] > mx)
+			mx = sz[v], son[x] = v;
+	}
+}
+void DFS2(int x, int topfz) {
+	idx[x] = ++dfn;      // 重新编号
+	top[x] = topfz;
+
+	if (!son[x])
+		return;
+	DFS2(son[x], topfz);
+
+	for (auto v : G[x]) {
+		if (v != fz[x] && v != son[x])
+			DFS2(v, v);
+	}
+}
+
+// 线段树
+void Range_Update(int x, int y, ll w) {
+	while (top[x] != top[y]) {
+		if (dep[top[x]] < dep[top[y]])
+			swap(x, y);
+		Update(1, 1, n, idx[top[x]], idx[x], w);
+		x = fz[top[x]];
+	}
+	if (dep[x] > dep[y])
+		swap(x, y);
+	Update(1, 1, n, idx[x], idx[y], w);
+}

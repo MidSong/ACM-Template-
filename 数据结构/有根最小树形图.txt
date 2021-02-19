@@ -1,0 +1,59 @@
+struct Edge
+{
+	int u, v, w;
+}e[M];
+int pre[N], id[N], vist[N];
+int in[N];
+
+int dmst(int rt, int n, int m) { // 根,点,边, 点下标从0开始
+	int u, v;
+	int res = 0;
+	while (true) {
+		for (int i = 0; i < n; i++)
+			in[i] = INF;
+		for (int i = 0; i < m; i++){
+			int ui = e[i].u, vi = e[i].v, wi = e[i].w;
+			if (wi < in[vi] && ui != vi) {
+				pre[vi] = ui;
+				in[vi] = wi;
+			}
+		}
+		for (int i = 0; i < n; i++) {
+			if (i == rt)
+				continue;
+			if (in[i] == INF)
+				return -1;
+		}
+		in[rt] = 0;
+		int cnt = 0;
+		MEM(id, -1), MEM(vist, -1);
+		for (int i = 0; i < n; i++) {
+			res += in[i];
+			v = i;
+			while (vist[v] != i && id[v] == -1 && v != rt)
+				vist[v] = i, v = pre[v];
+			if (v != rt && id[v] == -1) {
+				for (u = pre[v]; u != v; u = pre[u])
+					id[u] = cnt;
+				id[v] = cnt++;
+			}
+		}
+		if (!cnt)
+			break;
+		for (int i = 0; i < n; i++) {
+			if (id[i] == -1)
+				id[i] = cnt++;
+		}
+		for (int i = 0; i < m; i++) {
+			int ui = e[i].u, vi = e[i].v, wi = e[i].w;
+			v = vi;
+			e[i].u = id[ui];
+			e[i].v = id[vi];
+			if (ui != vi)
+				e[i].w -= in[v];
+		}
+		n = cnt;
+		rt = id[rt];
+	}
+	return res;
+}

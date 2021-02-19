@@ -1,0 +1,19 @@
+// 树状数组
+ll d[N], di[N];
+void Add(int x, ll y) {
+	for (int i = x; i <= n; i += lowbit(i))
+		d[i] += y, di[i] += y * x;
+}
+void Range_Add(int l, int r, ll w) {
+	Add(l, w);
+	Add(r + 1, -w);
+}
+ll Ask(int x) {
+	ll tot = 0;
+	for (int i = x; i; i -= lowbit(i))
+		tot += (x + 1) * d[i] - di[i];
+	return tot;
+}
+ll Range_Ask(int l, int r) {
+	return Ask(r) - Ask(l - 1);
+}

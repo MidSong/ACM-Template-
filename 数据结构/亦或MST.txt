@@ -1,0 +1,25 @@
+// 已知点权
+
+int a[N], n;
+int Find(int p, int *A, int m, int *B, int k) {
+	if (p == 0 || m == 0)
+		return 1 << k;
+	if (k == 0)
+		return 0;
+	int x = lower_bound(A, A + p, ((A[0] >> k - 1) | 1) << k - 1) - A;
+	int y = lower_bound(B, B + m, ((B[0] >> k - 1) | 1) << k - 1) - B;
+	if (x == 0 && y == m || x == p && y == 0)
+		return Find(p, A, m, B, k - 1) + (1 << (k - 1));
+	return min(Find(x, A, y, B, k - 1), Find(p - x, A + x, m - y, B + y, k - 1));
+}
+ll XOR_MST(int p, int *A, int k) {
+	if (p == 1)
+		return 0;
+	int x = lower_bound(A, A + p, ((A[0] >> (k - 1)) | 1) << (k - 1)) - A;
+	if (x == 0 || x == p)
+		return XOR_MST(p, A, k - 1);
+	return (1ll << (k - 1)) + Find(x, A, p - x, A + x, k - 1) + XOR_MST(x, A, k - 1) + XOR_MST(p - x, A + x, k - 1);
+}
+	sort(a, a + n);
+	n = unique(a, a + n) - a;
+	printf("%lld\n", XOR_MST(n, a, 30));

@@ -1,0 +1,85 @@
+struct Edge
+{
+	int u, v, w;
+}e[M];
+int pre[N], id[N], vist[N];
+int in[N], n, m, root;
+
+int dmst(int rt, int n, int m) {
+	int u, v;
+	int res = 0;
+	while (true) {
+		for (int i = 0; i < n; i++)
+			in[i] = INF;
+		for (int i = 0; i < m; i++){
+			int ui = e[i].u, vi = e[i].v, wi = e[i].w;
+			if (wi < in[vi] && ui != vi) {
+				pre[vi] = ui;
+				if (ui == rt)
+					root = i;
+				in[vi] = wi;
+			}
+		}
+		for (int i = 0; i < n; i++) {
+			if (i == rt)
+				continue;
+			if (in[i] == INF)
+				return -1;
+		}
+		in[rt] = 0;
+		int cnt = 0;
+		MEM(id, -1), MEM(vist, -1);
+		for (int i = 0; i < n; i++) {
+			res += in[i];
+			v = i;
+			while (vist[v] != i && id[v] == -1 && v != rt)
+				vist[v] = i, v = pre[v];
+			if (v != rt && id[v] == -1) {
+				for (u = pre[v]; u != v; u = pre[u])
+					id[u] = cnt;
+				id[v] = cnt++;
+			}
+		}
+		if (!cnt)
+			break;
+		for (int i = 0; i < n; i++) {
+			if (id[i] == -1)
+				id[i] = cnt++;
+		}
+		for (int i = 0; i < m; i++) {
+			int ui = e[i].u, vi = e[i].v, wi = e[i].w;
+			v = vi;
+			e[i].u = id[ui];
+			e[i].v = id[vi];
+			if (ui != vi)
+				e[i].w -= in[v];
+		}
+		n = cnt;
+		rt = id[rt];
+	}
+	return res;
+}
+
+int main()
+{
+	while (~sc("%d %d", &n, &m)) {
+		int r = 0, m1 = m;
+		for (int i = 0; i < m; i++) {
+			int ui, vi, wi;
+			sc("%d %d %d", &ui, &vi, &wi);
+			e[i] = { ui, vi, wi };
+			r += wi;
+		}
+		r++;
+		for (int i = 0; i < n; i++)
+			e[m++] = { n, i, r };
+		int ans = dmst(n, n + 1, m);
+		root -= m1;
+		if (ans == -1 || ans >= 2 * r)
+			printf("impossible\n");
+		else
+			printf("%d %d\n", ans - r, root);
+		printf("\n");
+	}
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

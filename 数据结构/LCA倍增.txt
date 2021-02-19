@@ -1,0 +1,29 @@
+vector <int> G[N];
+int dep[N], f[N][25];
+
+void DFS(int x, int fa) {
+	dep[x] = dep[fa] + 1;
+	f[x][0] = fa;
+	for (int i = 1; (1 << i) <= dep[x]; i++)
+		f[x][i] = f[f[x][i - 1]][i - 1]; 
+	for (auto v : G[x]) {
+		if (v != fa)
+			DFS(v, x);
+	}
+}
+int LCA(int x, int y) {
+	if (dep[x] > dep[y])
+		swap(x, y);
+	for (int i = 20; i >= 0; i--) {
+		if (dep[y] - (1 << i) >= dep[x])
+			y = f[y][i];
+	}
+	if (x == y)
+		return x;
+	for (int i = 20; i >= 0; i--) {
+		if (f[x][i] == f[y][i])
+			continue;
+		x = f[x][i], y = f[y][i];
+	}
+	return f[x][0];
+}

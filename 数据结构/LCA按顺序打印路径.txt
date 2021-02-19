@@ -1,0 +1,9 @@
+void lca(int x, int y)
+{
+	if (x == y)
+		printf(x), return;
+	if (dep[x] >= dep[y])
+		printf(x), lca(fz[x], y);
+	else
+		lca(x, fz[y]), printf(y);
+}

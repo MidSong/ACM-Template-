@@ -1,0 +1,16 @@
+int st[N][25], n, m;
+int Log[N];
+
+void Init() {
+	Log[0] = -1;
+	for (int i = 1; i <= n; i++) 
+		sc("%d", &st[i][0]), Log[i] = Log[i >> 1] + 1;
+	for (int p = 1; p <= Log[n]; p++) {
+		for (int i = 1; i + (1 << p) - 1 <= n; i++)
+			st[i][p] = max(st[i][p - 1], st[i + (1 << (p - 1))][p - 1]);
+	}
+}
+int Ask(int l, int r) {
+	int d = Log[r - l + 1];
+	return max(st[l][d], st[r - (1 << d) + 1][d]);
+}

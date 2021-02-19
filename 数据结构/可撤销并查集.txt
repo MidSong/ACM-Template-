@@ -1,0 +1,31 @@
+int fz[N], sz[N], n, m;
+stack <pir> st;
+
+void Init() {
+	for (int i = 1; i <= n; i++)
+		fz[i] = i, sz[i] = 1;
+}
+int Find(int x) {
+	while (x != fz[x])
+		x = fz[x];
+	return x;
+}
+void Merge(int x, int y) {
+	x = Find(x);
+	y = Find(y);
+	if (x == y)
+		return;
+	if (sz[x] > sz[y])
+		swap(x, y);
+	fz[x] = y;
+	st.push({ x, y });
+	sz[y] += sz[x];
+}
+void Cancle() {
+	int x = st.top().first, y = st.top().second;
+	st.pop();
+	if (!x && !y)
+		return;
+	fz[x] = x;
+	sz[y] -= sz[x];
+}

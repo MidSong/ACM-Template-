@@ -1,0 +1,19 @@
+int f[N], sz[N], n, m;
+void init() {
+	for (int i = 1; i <= n; i++)
+		f[i] = i, sz[i] = 1;
+}
+int Find(int x) {
+	while (x != f[x])
+		x = f[x];
+	return x;
+}
+void Merge(int x, int y) {
+	x = Find(x);
+	y = Find(y);
+	if (x == y)
+		return;
+	if (sz[x] > sz[y])
+		swap(x, y);  // 小的连到大的
+	f[x] = y, sz[y] += sz[x];
+}

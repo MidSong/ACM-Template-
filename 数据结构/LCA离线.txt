@@ -1,0 +1,35 @@
+vector <int> G[N << 1];
+vector <pir> Ask[N << 1];
+int f[N], ans[N], n;
+bool vis[N];
+
+void init() {
+	for (int i = 1; i <= n; i++)
+		f[i] = i;
+}
+int find_(int x) {
+	if (x != f[x])
+		x = f[x] = find_(f[x]);
+	return x;
+}
+void unite(int x, int y) {
+	x = find_(x);
+	y = find_(y);
+	if (x != y)
+		f[x] = y;
+}
+
+void dfs(int x, int fa) {
+	vis[x] = true;
+	for (auto v : G[x]) {
+		if (v == fa)
+			continue;
+		dfs(v, x);
+		f[v] = x;
+	}
+	for (auto it : Ask[x]) {
+		int u = it.first, idx = it.second;
+		if (vis[u] && !ans[idx])
+			ans[idx] = find_(u);
+	}
+}

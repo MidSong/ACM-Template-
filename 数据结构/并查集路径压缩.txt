@@ -1,0 +1,16 @@
+int f[N], n, m;
+void init() {
+	for (int i = 1; i <= n; i++)
+		f[i] = i;
+}
+int Find(int x) {
+	if (x != f[x])
+		x = f[x] = Find(f[x]);
+	return x;
+}
+void Merge(int x, int y) {
+	x = Find(x);
+	y = Find(y);
+	if (x != y)
+		f[x] = y;
+}

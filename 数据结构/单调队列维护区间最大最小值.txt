@@ -1,0 +1,40 @@
+//https://www.luogu.com.cn/problem/P1886
+int a[N], q1[N], q2[N];
+int n, k;
+
+void Min_que() {
+	int l = 1, r = 0;
+	for (int i = 1; i <= n; i++) {
+		while (l <= r && q1[l] + k <= i)
+			l++;
+		while (l <= r && a[i] < a[q1[r]])
+			r--;
+		q1[++r] = i;
+		if (i >= k)
+			printf("%d ", a[q1[l]]);
+	}
+	putchar('\n');
+}
+void Max_que() {
+	int l = 1, r = 0;
+	for (int i = 1; i <= n; i++) {
+		while (l <= r && q2[l] + k <= i)
+			l++;
+		while (l <= r && a[i] > a[q2[r]])
+			r--;
+		q2[++r] = i;
+		if (i >= k)
+			printf("%d ", a[q2[l]]);
+	}
+	putchar('\n');
+}
+
+int main()
+{
+	cin >> n >> k;
+	for (int i = 1; i <= n; i++)
+		sc("%d", &a[i]);
+	Min_que();
+	Max_que();
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

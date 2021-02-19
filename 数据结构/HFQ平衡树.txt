@@ -1,0 +1,91 @@
+mt19937 mt(time(NULL));  // mt()
+typedef unsigned int uint;
+struct Treap
+{
+	int ls, rs;
+	uint key;
+	int val, sz;
+
+}t[N];
+int rt, idx;
+
+void Init() {
+	rt = idx = 0;
+}
+int Create(int x) {
+	idx++;
+	t[idx] = { 0, 0, mt(), x, 1 };
+	return idx;
+}
+void Pushup(int u) {
+	t[u].sz = t[t[u].ls].sz + t[t[u].rs].sz + 1;
+}
+void Split(int u, int val, int &l, int &r) {
+	if (!u) 
+		l = r = 0;
+	else {
+		if (t[u].val <= val) {
+			l = u;
+			Split(t[u].rs, val, t[u].rs, r);
+		}
+		else {
+			r = u;
+			Split(t[u].ls, val, l, t[u].ls);
+		}
+		Pushup(u);
+	}
+}
+int Merge(int l, int r) {
+	if (!l || !r)
+		return l | r;
+	if (t[l].key > t[r].key) {
+		t[l].rs = Merge(t[l].rs, r);
+		Pushup(l); return l;
+	}
+	else {
+		t[r].ls = Merge(l, t[r].ls);
+		Pushup(r); return r;
+	}
+}
+int L, R, mid;
+void Insert(int val) {
+	Split(rt, val, L, R);
+	rt = Merge(Merge(L, Create(val)), R);
+}
+void Delete(int val) {
+	Split(rt, val, L, mid);
+	Split(L, val - 1, L, R);
+	R = Merge(t[R].ls, t[R].rs);
+	rt = Merge(Merge(L, R), mid);
+}
+int Rank(int val) {
+	Split(rt, val - 1, L, R);
+	int k = t[L].sz + 1;
+	rt = Merge(L, R);
+	return k;
+}
+int Kth(int k) {
+	int x = rt;
+	while (x && t[t[x].ls].sz + 1 != k)
+		if (t[t[x].ls].sz >= k)
+			x = t[x].ls;
+		else
+			k -= t[t[x].ls].sz + 1, x = t[x].rs;
+	return t[x].val;
+}
+int Pre(int val) {
+	Split(rt, val - 1, L, R);
+	int x = L;
+	while (t[x].rs)
+		x = t[x].rs;
+	rt = Merge(L, R);
+	return t[x].val;
+}
+int Nxt(int val) {
+	Split(rt, val, L, R);
+	int x = R;
+	while (t[x].ls)
+		x = t[x].ls;
+	rt = Merge(L, R);
+	return t[x].val;
+}

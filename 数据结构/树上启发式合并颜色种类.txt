@@ -1,0 +1,17 @@
+vector <int> G[N];
+set <int> st[N];
+int a[N], ans[N];
+
+void dfs(int x, int fa) {
+	st[x].insert(a[x]); 
+	for (auto v : G[x]) {
+		if (v == fa)
+			continue;
+		dfs(v, x);
+		if (SZ(st[v]) > SZ(st[x]))
+			swap(st[x], st[v]);
+		for (auto it : st[v]) 
+			st[x].insert(it);
+	}
+	ans[x] = SZ(st[x]);
+}

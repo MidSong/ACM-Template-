@@ -1,0 +1,76 @@
+struct Tree
+{
+	int l, r, len;
+	ll sum, add, mul;
+}t[N * 4];
+int n, m;
+ll p;
+
+void Build(int rt, int l, int r) {
+	t[rt].l = l, t[rt].r = r;
+	t[rt].len = r - l + 1;
+	t[rt].mul = 1;
+	if (l == r) {
+		ll w;
+		sc("%lld", &w);
+		t[rt].sum = w % p;
+		return;
+	}
+	int mid = (l + r) >> 1;
+	Build(ls, l, mid);
+	Build(rs, mid + 1, r);
+	t[rt].sum = (t[ls].sum + t[rs].sum) % p;
+}
+void Pushdown(int rt) {
+	t[ls].sum = ((t[ls].sum * t[rt].mul) % p + (t[rt].add * t[ls].len) % p) % p;
+	t[rs].sum = ((t[rs].sum * t[rt].mul) % p + (t[rt].add * t[rs].len) % p) % p;
+
+	t[ls].add = ((t[ls].add * t[rt].mul) % p + t[rt].add) % p;
+	t[rs].add = ((t[rs].add * t[rt].mul) % p + t[rt].add) % p;
+
+	t[ls].mul = (t[ls].mul * t[rt].mul) % p;
+	t[rs].mul = (t[rs].mul * t[rt].mul) % p;
+
+	t[rt].mul = 1, t[rt].add = 0;
+}
+void Mul(int rt, int l, int r, ll k) {
+	if (t[rt].l >= l && t[rt].r <= r) {
+		t[rt].sum = (t[rt].sum * k) % p;
+		t[rt].mul = (t[rt].mul * k) % p;
+		t[rt].add = (t[rt].add * k) % p;
+		return;
+	}
+	int mid = (t[rt].l + t[rt].r) >> 1;
+	Pushdown(rt);
+	if (mid >= l)
+		Mul(ls, l, r, k);
+	if (mid < r)
+		Mul(rs, l, r, k);
+	t[rt].sum = (t[ls].sum + t[rs].sum) % p;
+}
+void Add(int rt, int l, int r, ll k) {
+	if (t[rt].l >= l && t[rt].r <= r) {
+		t[rt].sum = (t[rt].sum + (t[rt].len * k) % p) % p;
+		t[rt].add = (t[rt].add + k) % p;
+		return;
+	}
+	int mid = (t[rt].l + t[rt].r) >> 1;
+	Pushdown(rt);
+	if (mid >= l)
+		Add(ls, l, r, k);
+	if (mid < r)
+		Add(rs, l, r, k);
+	t[rt].sum = (t[ls].sum + t[rs].sum) % p;
+}
+ll Query(int rt, int l, int r) {
+	if (t[rt].l >= l && t[rt].r <= r)
+		return t[rt].sum;
+	int mid = (t[rt].l + t[rt].r) >> 1;
+	Pushdown(rt);
+	ll ans = 0;
+	if (mid >= l)
+		ans = Query(ls, l, r);
+	if (mid < r)
+		ans = (ans % p + Query(rs, l, r)) % p;
+	return ans;
+}

@@ -1,0 +1,15 @@
+	while (q--) {
+		int m, u, v, uu, vv, flag = 1;
+		scanf("%d %d %d", &m, &u, &v);
+		for (int i = 1; i < m; ++i) {
+			scanf("%d%d", &uu, &vv);
+			if (flag) {
+				int a[] = { LCA(u, uu), LCA(u, vv), LCA(v, uu), LCA(v, vv) };
+				sort(a, a + 4, [](int x, int y){return dep[x] > dep[y]; }); //只保留深度最大两个
+				if (dep[a[1]] < dep[LCA(u, v)] || dep[a[1]] < dep[LCA(uu, vv)]) //如果深度较小点 超出两路径lca则无交
+					flag = 0;
+				u = a[0], v = a[1];
+			}
+		}
+		printf("%d\n", flag ? abs(dep[u] + dep[v] - dep[LCA(u, v)] * 2 + 1) : 0); //最终两点间距离即为路径交
+	}

@@ -1,0 +1,170 @@
+//http://acm.hdu.edu.cn/showproblem.php?pid=4578
+#include<bits/stdc++.h>
+#include<unordered_map>
+using namespace std;
+
+#define sc scanf
+#define ls rt << 1
+#define rs ls | 1
+#define Min(x, y) x = min(x, y)
+#define Max(x, y) x = max(x, y)
+#define ALL(x) (x).begin(),(x).end()
+#define SZ(x) ((int)(x).size())
+#define pir pair <int, int>
+#define MK(x, y) make_pair(x, y)
+#define MEM(x, b) memset(x, b, sizeof(x))
+#define MPY(x, b) memcpy(x, b, sizeof(x))
+#define lowbit(x) ((x) & -(x))
+#define P2(x) ((x) * (x))
+
+typedef long long ll;
+const int Mod = 10007;
+const int N = 1e5 + 100;
+const int INF = 0x3f3f3f3f;
+const ll LINF = 0x3f3f3f3f3f3f3f3f;
+inline ll dpow(ll a, ll b){ ll r = 1, t = a; while (b){ if (b & 1)r = (r*t) % Mod; b >>= 1; t = (t*t) % Mod; }return r; }
+inline ll fpow(ll a, ll b){ ll r = 1, t = a; while (b){ if (b & 1)r = (r*t); b >>= 1; t = (t*t); }return r; }
+
+// 线段树
+ll lzy[N * 4][3]; // 加，乘，覆盖
+ll wt[N * 4][3]; // p次幂
+
+void Build(int rt, int L, int R) {
+	for (int i = 0; i < 3; i++)
+		wt[rt][i] = 0;
+	if (L == R)
+		return;
+	lzy[rt][0] = 0;
+	lzy[rt][1] = 1;
+	lzy[rt][2] = 0;
+	int mid = (L + R) >> 1;
+	Build(ls, L, mid);
+	Build(rs, mid + 1, R);
+}
+void Pushup(int rt) {
+	wt[rt][0] = (wt[ls][0] + wt[rs][0]) % Mod;
+	wt[rt][1] = (wt[ls][1] + wt[rs][1]) % Mod;
+	wt[rt][2] = (wt[ls][2] + wt[rs][2]) % Mod;
+}
+void Pushdown(int rt, int len) {
+
+	int Llen = len - (len >> 1);
+	int Rlen = len >> 1;
+	if (lzy[rt][2]) {  // 覆盖
+		wt[ls][2] = dpow(lzy[rt][2], 3) * Llen % Mod;
+		wt[rs][2] = dpow(lzy[rt][2], 3) * Rlen % Mod;
+
+		wt[ls][1] = dpow(lzy[rt][2], 2) * Llen % Mod;
+		wt[rs][1] = dpow(lzy[rt][2], 2) * Rlen % Mod;
+
+		wt[ls][0] = lzy[rt][2] * Llen % Mod;
+		wt[rs][0] = lzy[rt][2] * Rlen % Mod;
+
+		lzy[ls][0] = lzy[rs][0] = 0;
+		lzy[ls][1] = lzy[rs][1] = 1;
+		lzy[ls][2] = lzy[rs][2] = lzy[rt][2];
+
+		lzy[rt][2] = 0;
+	}
+	if (lzy[rt][1] != 1) {  // 乘法
+		wt[ls][2] = wt[ls][2] * dpow(lzy[rt][1], 3) % Mod;
+		wt[rs][2] = wt[rs][2] * dpow(lzy[rt][1], 3) % Mod;
+
+		wt[ls][1] = wt[ls][1] * dpow(lzy[rt][1], 2) % Mod;
+		wt[rs][1] = wt[rs][1] * dpow(lzy[rt][1], 2) % Mod;
+
+		wt[ls][0] = wt[ls][0] * lzy[rt][1] % Mod;
+		wt[rs][0] = wt[rs][0] * lzy[rt][1] % Mod;
+
+		lzy[ls][0] = lzy[ls][0] * lzy[rt][1] % Mod;
+		lzy[rs][0] = lzy[rs][0] * lzy[rt][1] % Mod;
+
+		lzy[ls][1] = lzy[ls][1] * lzy[rt][1] % Mod;
+		lzy[rs][1] = lzy[rs][1] * lzy[rt][1] % Mod;
+
+		lzy[rt][1] = 1;
+	}
+	if (lzy[rt][0]) {  // 加法
+		wt[ls][2] = (wt[ls][2] + (wt[ls][1] + wt[ls][0] * lzy[rt][0] % Mod) * (3 * lzy[rt][0] % Mod) % Mod
+			+ (Llen * dpow(lzy[rt][0], 3)) % Mod) % Mod;
+		wt[rs][2] = (wt[rs][2] + (wt[rs][1] + wt[rs][0] * lzy[rt][0] % Mod) * (3 * lzy[rt][0] % Mod) % Mod
+			+ (Rlen * dpow(lzy[rt][0], 3)) % Mod) % Mod;
+
+		wt[ls][1] = (wt[ls][1] + (wt[ls][0] * 2 * lzy[rt][0] % Mod + Llen * dpow(lzy[rt][0], 2) % Mod) % Mod) % Mod;
+		wt[rs][1] = (wt[rs][1] + (wt[rs][0] * 2 * lzy[rt][0] % Mod + Rlen * dpow(lzy[rt][0], 2) % Mod) % Mod) % Mod;
+
+		wt[ls][0] = (wt[ls][0] + Llen * lzy[rt][0] % Mod) % Mod;
+		wt[rs][0] = (wt[rs][0] + Rlen * lzy[rt][0] % Mod) % Mod;
+
+		lzy[ls][0] = (lzy[ls][0] + lzy[rt][0]) % Mod;
+		lzy[rs][0] = (lzy[rs][0] + lzy[rt][0]) % Mod;
+
+		lzy[rt][0] = 0;
+	}
+}
+void Update(int rt, int L, int R, int l, int r, int w, int op) {
+	if (L >= l && R <= r) {
+		// 加法
+		int len = R - L + 1;
+		if (op == 1) {
+			wt[rt][2] = (wt[rt][2] + ((wt[rt][1] + wt[rt][0] * w % Mod) % Mod) * (3 * w % Mod) % Mod + len * dpow(w, 3) % Mod) % Mod;
+			wt[rt][1] = (wt[rt][1] + wt[rt][0] * 2 * w % Mod + len * dpow(w, 2) % Mod) % Mod;
+			wt[rt][0] = (wt[rt][0] + len * w % Mod) % Mod;
+
+			lzy[rt][0] = (lzy[rt][0] + w) % Mod;
+		}
+		else if (op == 2) {
+			wt[rt][2] = wt[rt][2] * dpow(w, 3) % Mod;
+			wt[rt][1] = wt[rt][1] * dpow(w, 2) % Mod;
+			wt[rt][0] = wt[rt][0] * w % Mod;
+
+			lzy[rt][1] = (lzy[rt][1] * w) % Mod;
+			lzy[rt][0] = lzy[rt][0] * w % Mod;
+		}
+		else {
+			wt[rt][2] = dpow(w, 3) * len % Mod;
+			wt[rt][1] = dpow(w, 2) * len % Mod;
+			wt[rt][0] = w * len % Mod;
+
+			lzy[rt][0] = 0, lzy[rt][1] = 1;
+			lzy[rt][2] = w;
+		}
+		return;
+	}
+	Pushdown(rt, R - L + 1);
+	int mid = (L + R) >> 1;
+	if (mid >= l)
+		Update(ls, L, mid, l, r, w, op);
+	if (mid < r)
+		Update(rs, mid + 1, R, l, r, w, op);
+	Pushup(rt);
+}
+ll Query(int rt, int L, int R, int l, int r, int k) {
+	if (L >= l && R <= r)
+		return wt[rt][k];
+	Pushdown(rt, R - L + 1);
+	int mid = (L + R) >> 1;
+	ll ans = 0;
+	if (mid >= l)
+		ans = Query(ls, L, mid, l, r, k);
+	if (mid < r)
+		ans += Query(rs, mid + 1, R, l, r, k);
+	return ans % Mod;
+}
+
+int main()
+{
+	int n, q;
+	while (sc("%d %d", &n, &q) && n + q) {
+		Build(1, 1, n);
+		while (q--) {
+			int op, x, y, w;
+			sc("%d %d %d %d", &op, &x, &y, &w);
+			if (op <= 3)
+				Update(1, 1, n, x, y, w, op);
+			else
+				printf("%lld\n", Query(1, 1, n, x, y, w - 1));
+		}
+	}
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

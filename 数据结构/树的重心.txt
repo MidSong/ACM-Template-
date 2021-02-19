@@ -1,0 +1,17 @@
+vector <int> G[N << 1];
+int dep[N], t[N], n;
+int mxt[N], rt;
+
+void dfs(int x, int fa) {
+	t[x] = 1;
+	for (auto v : G[x]) {
+		if (v != fa) {
+			dfs(v, x);
+			t[x] += t[v];
+			Max(mxt[x], t[v]);
+		}
+	}
+	Max(mxt[x], n - t[x]);
+	if (mxt[x] < mxt[rt])
+		rt = x;
+}

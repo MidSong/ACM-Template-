@@ -1,0 +1,61 @@
+vector <pir> G[N << 1];
+int f[N], r1, r2;
+ll dis[N], mx;
+bool vis[N];
+
+void dfs(int x, int fa, int &now) {
+	if (dis[x] > mx)
+		mx = dis[x], now = x;
+	f[x] = fa;
+	for (auto it : G[x]) {
+		int v = it.second, w = it.first;
+		if (v == fa)
+			continue;
+		dis[v] = dis[x] + w;
+		dfs(v, x, now);
+	}
+}
+void DFS(int x, int fa, ll dist) {
+	Max(mx, dist);
+	for (auto it : G[x]) {
+		int v = it.second, w = it.first;
+		if (v == fa || vis[v])
+			continue;
+		DFS(v, x, dist + w);
+	}
+}
+
+int main()
+{
+	int n;
+	cin >> n;
+	for (int i = 1; i < n; i++) {
+		int ui, vi, wi;
+		sc("%d %d %d", &ui, &vi, &wi);
+		G[ui].push_back({ wi, vi });
+		G[vi].push_back({ wi, ui });
+	}
+	mx = -LINF;
+	dfs(1, 0, r1);
+	MEM(dis, 0);
+	mx = -LINF, dfs(r1, 0, r2);
+	printf("%lld\n", mx);
+	for (int i = r2; i; i = f[i]) 
+		vis[i] = true;
+	bool ok = false;
+	int l = r1, r = r2;
+	for (int i = f[r2]; i != r1; i = f[i]) {
+		mx = 0;
+		ll dl = dis[i], dr = dis[r2] - dis[i];
+		DFS(i, 0, 0);
+		if (mx == dr)
+			r = i;
+		if (mx == dl && !ok)
+			l = i, ok = true;
+	}
+	int ans = 0;
+	while (r != l)
+		r = f[r], ans++;
+	printf("%d\n", ans);
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

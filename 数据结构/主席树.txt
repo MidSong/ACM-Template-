@@ -1,0 +1,50 @@
+vector <int> v;
+int ans[N * 32], ls[N * 32], rs[N * 32];
+int a[N], n, q;
+int root[N], cnt;
+
+void Update(int L, int R, int &rt, int lst, int w) {
+	ans[++cnt] = ans[lst] + 1;
+    ls[cnt] = ls[lst], rs[cnt] = rs[lst];
+
+	rt = cnt;
+	if (L == R)
+		return;
+	int mid = (L + R) >> 1;
+	if (mid >= w)
+		Update(L, mid, ls[rt], ls[lst], w);
+	else
+		Update(mid + 1, R, rs[rt], rs[lst], w);
+}
+int Ask(int L, int R, int l, int r, int k) {
+	if (L == R)
+		return L;
+	int sum = ans[ls[r]] - ans[ls[l]];
+	int mid = (L + R) >> 1;
+	if (sum >= k)
+		return Ask(L, mid, ls[l], ls[r], k);
+	else
+		return Ask(mid + 1, R, rs[l], rs[r], k - sum);
+}
+
+int main()
+{
+	cin >> n >> q;
+	for (int i = 1; i <= n; i++)
+		sc("%d", &a[i]), v.push_back(a[i]);
+	sort(ALL(v));
+	v.erase(unique(ALL(v)), v.end());
+
+	for (int i = 1; i <= n; i++) {
+		int ev = lower_bound(ALL(v), a[i]) - v.begin() + 1;
+		Update(1, n, root[i], root[i - 1], ev);
+	}
+
+	while (q--) {
+		int l, r, k;
+		sc("%d %d %d", &l, &r, &k);
+		printf("%d\n", v[Ask(1, n, root[l - 1], root[r], k) - 1]);
+	}
+
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

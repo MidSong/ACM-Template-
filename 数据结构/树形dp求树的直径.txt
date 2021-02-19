@@ -1,0 +1,13 @@
+vector <pir> G[N];
+int dp[N], ans;
+
+void dfs(int x, int fa) {
+	for (auto it : G[x]) {
+		int v = it.second, w = it.first;
+		if (v == fa)
+			continue;
+		dfs(v, x);
+		Max(ans, dp[x] + dp[v] + w);
+		Max(dp[x], dp[v] + w);
+	}
+}

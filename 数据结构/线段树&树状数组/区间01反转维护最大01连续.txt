@@ -1,0 +1,78 @@
+//https://nanti.jisuanke.com/t/44891
+struct Tree
+{
+	int l, r, len, lzy;
+	int lmx, rmx, mx;
+	int lmx1, rmx1, mx1;
+}t[N * 4];
+int a[N];
+char str[N];
+
+void Pushup(int rt) {
+	t[rt].lmx1 = t[ls].lmx1, t[rt].rmx1 = t[rs].rmx1;
+	if (t[ls].mx1 == t[ls].len)
+		Max(t[rt].lmx1, t[ls].mx1 + t[rs].lmx1);
+	if (t[rs].mx1 == t[rs].len)
+		Max(t[rt].rmx1, t[rs].mx1 + t[ls].rmx1);
+	t[rt].mx1 = max(t[rt].lmx1, t[rt].rmx1);
+	Max(t[rt].mx1, t[ls].rmx1 + t[rs].lmx1);
+	Max(t[rt].mx1, max(t[ls].mx1, t[rs].mx1));
+
+	t[rt].lmx = t[ls].lmx, t[rt].rmx = t[rs].rmx;
+	if (t[ls].mx == t[ls].len)
+		Max(t[rt].lmx, t[ls].mx + t[rs].lmx);
+	if (t[rs].mx == t[rs].len)
+		Max(t[rt].rmx, t[rs].mx + t[ls].rmx);
+	t[rt].mx = max(t[rt].lmx, t[rt].rmx);
+	Max(t[rt].mx, t[ls].rmx + t[rs].lmx);
+	Max(t[rt].mx, max(t[ls].mx, t[rs].mx));
+}
+void Build(int rt, int l, int r) {
+	t[rt].l = l, t[rt].r = r;
+	t[rt].lzy = 0;
+	t[rt].len = r - l + 1;
+	t[rt].lmx = t[rt].rmx = t[rt].mx = 0;
+	t[rt].lmx1 = t[rt].rmx1 = t[rt].mx1 = 0;
+	if (l == r) {
+		if (a[l] == 1) 
+			t[rt].lmx1 = t[rt].rmx1 = t[rt].mx1 = 1;
+		else 
+			t[rt].lmx = t[rt].rmx = t[rt].mx = 1;
+		return;
+	}
+	int mid = (l + r) >> 1;
+	Build(ls, l, mid);
+	Build(rs, mid + 1, r);
+	Pushup(rt);
+}
+void Calc(int rt) {
+	swap(t[rt].lmx, t[rt].lmx1);
+	swap(t[rt].rmx, t[rt].rmx1);
+	swap(t[rt].mx, t[rt].mx1);
+}
+void Pushdown(int rt) {
+	t[ls].lzy ^= 1; 
+	swap(t[ls].lmx, t[ls].lmx1);
+	swap(t[ls].rmx, t[ls].rmx1);
+	swap(t[ls].mx, t[ls].mx1);
+
+	t[rs].lzy ^= 1;
+	swap(t[rs].lmx, t[rs].lmx1);
+	swap(t[rs].rmx, t[rs].rmx1);
+	swap(t[rs].mx, t[rs].mx1);
+	t[rt].lzy ^= 1;
+}
+void Update(int rt, int l, int r) {
+	if (t[rt].l >= l && t[rt].r <= r) {
+		Calc(rt); t[rt].lzy ^= 1;
+		return;
+	}
+	int mid = (t[rt].l + t[rt].r) >> 1;
+	if (t[rt].lzy)
+		Pushdown(rt);
+	if (mid >= l)
+		Update(ls, l, r);
+	if (mid < r)
+		Update(rs, l, r);
+	Pushup(rt);
+}
