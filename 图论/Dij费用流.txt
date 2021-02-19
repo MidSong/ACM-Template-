@@ -1,0 +1,165 @@
+// vector版
+
+struct Edge
+{
+	ll f, w;
+	int v, r;
+};
+vector <Edge> G[N];
+int n, m, sp, tp;
+int pre[N], prv[N]; // 边，点
+ll dis[N], h[N];
+ll mincost, mxflow;
+
+void Init() {
+	for (int i = sp; i <= tp; i++)
+		G[i].clear();
+	mincost = mxflow = 0;
+}
+void Add(int u, int v, ll f, ll w) {
+	G[u].push_back({ f, w, v, SZ(G[v]) });
+	G[v].push_back({ 0, -w, u, SZ(G[u]) - 1 });
+}
+bool Dijkstra() {   //pir记得改long long
+	for (int i = sp; i <= tp; i++)
+		dis[i] = LINF;
+	dis[sp] = 0;
+	pre[tp] = prv[tp] = -1;
+
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	q.push({ 0, sp });
+
+	while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+
+		int u = now.second;
+		if (dis[u] < now.first)
+			continue;
+
+		for (int i = 0; i < SZ(G[u]); i++) {
+			int v = G[u][i].v;
+			ll f = G[u][i].f, w = G[u][i].w;
+			if (f && dis[v] > dis[u] + w + h[u] - h[v]) {
+				dis[v] = dis[u] + w + h[u] - h[v];
+				q.push({ dis[v], v });
+				pre[v] = i;
+				prv[v] = u;
+			}
+		}
+	}
+	return pre[tp] != -1;
+}
+void MCFC() {
+	for (int i = sp; i <= tp; i++)
+		h[i] = 0;
+
+	while (Dijkstra()) {
+		for (int i = 1; i <= n; i++)
+			h[i] += dis[i];
+		ll mi = LINF;
+		
+		int v = tp;
+		while (v != sp) {
+			int id = pre[v], u = prv[v];
+			Min(mi, G[u][id].f);
+			v = prv[v];
+		}
+
+		v = tp;
+		while (v != sp) {
+			int id = pre[v], u = prv[v];
+			int r = G[u][id].r;
+			G[u][id].f -= mi;
+			G[v][r].f += mi;
+			v = prv[v];
+		}
+		mxflow += mi;
+		mincost += mi * h[tp];
+
+	}
+}
+
+
+// 链式前向星版
+struct Edge
+{
+	ll f, w;
+	int v, nxt;
+}G[N];
+int head[N], cnt;
+int n, m, sp, tp;
+int pre[N], prv[N]; // 边，点
+ll dis[N], h[N];
+ll mincost, mxflow;
+
+void Init() {
+	for (int i = sp; i <= tp; i++)
+		head[i] = -1;
+	mincost = mxflow = 0;
+}
+void Add(int u, int v, ll f, ll w) {
+	G[cnt] = { f, w, v, head[u] };
+	head[u] = cnt++;
+
+	G[cnt] = { 0, -w, u, head[v] };
+	head[v] = cnt++;
+}
+bool Dijkstra() {   //pir记得改long long
+	for (int i = sp; i <= tp; i++)
+		dis[i] = LINF;
+	dis[sp] = 0;
+	pre[tp] = prv[tp] = -1;
+
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	q.push({ 0, sp });
+
+	while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+
+		int u = now.second;
+		if (dis[u] < now.first)
+			continue;
+
+		for (int i = head[u]; i != -1; i = G[i].nxt) {
+			int v = G[i].v;
+			ll f = G[i].f, w = G[i].w;
+			if (f && dis[v] > dis[u] + w + h[u] - h[v]) {
+				dis[v] = dis[u] + w + h[u] - h[v];
+				q.push({ dis[v], v });
+				pre[v] = i;
+				prv[v] = u;
+			}
+		}
+	}
+	return pre[tp] != -1;
+}
+void MCFC() {
+	for (int i = sp; i <= tp; i++)
+		h[i] = 0;
+
+	while (Dijkstra()) {
+		for (int i = sp; i <= tp; i++)
+			h[i] += dis[i];
+		ll mi = LINF;
+		
+		int v = tp;
+		while (v != sp) {
+			int id = pre[v], u = prv[v];
+			Min(mi, G[id].f);
+			v = prv[v];
+		}
+
+		v = tp;
+		while (v != sp) {
+			int id = pre[v], u = prv[v];
+			G[id].f -= mi;
+			G[id ^ 1].f += mi;
+			v = prv[v];
+		}
+		mxflow += mi;
+		mincost += mi * h[tp];
+
+	}
+}

@@ -1,0 +1,12 @@
+bool dfs(int x) {
+	if (dfn[x] == 1)
+		return true;   // 当前路径又走一次出环
+	if (dfn[x] == -1)      // 已访问过的无环路径
+		return false;
+	dfn[x] = 1;          // 当前路径
+	for (auto v : G[x])
+		if (dfs(v))
+			return true;
+	dfn[x] = -1;            // 无环访问标记
+	return false;
+}

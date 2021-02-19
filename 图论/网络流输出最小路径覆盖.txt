@@ -1,0 +1,123 @@
+struct Edge
+{
+	ll f;
+	int v, nxt;
+}G[M];
+int n, m, sp, tp;
+int h[N], cnt, L, R;
+int dep[N], cur[N];
+int fz[N];
+int find_(int x) {
+	if (x != fz[x])
+		x = fz[x] = find_(fz[x]);
+	return x;
+}
+
+void init() {
+	sp = 0, tp = 2 * n + 1;
+	for (int i = sp; i <= tp; i++)
+		h[i] = -1;
+	L = sp, R = tp, cnt = 0;
+}
+void Add(int u, int v, ll f) {
+	G[cnt] = { f, v, h[u] };
+	h[u] = cnt++;
+
+	G[cnt] = { 0, u, h[v] };
+	h[v] = cnt++;
+}
+bool BFS() {
+	queue <int> q;
+	for (int i = L; i <= R; i++)
+		dep[i] = 0;
+	q.push(sp), dep[sp] = 1;
+
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+
+		for (int i = h[u]; i != -1; i = G[i].nxt) {
+			int v = G[i].v;
+			if (!dep[v] && G[i].f) {
+				dep[v] = dep[u] + 1;
+				if (v == tp)
+					return true;
+				q.push(v);
+			}
+		}
+	}
+	return false;
+}
+ll DFS(int x, ll flow) {
+	if (x == tp || !flow)
+		return flow;
+	ll k, res = 0;
+	for (int &i = cur[x]; i != -1; i = G[i].nxt) {
+		int v = G[i].v;
+		if (dep[v] == dep[x] + 1 && G[i].f) {
+			k = DFS(v, min(flow - res, G[i].f));
+			if (k) {
+				G[i].f -= k;
+				G[i ^ 1].f += k;
+				res += k;
+				if (res == flow)
+					return flow;
+			}
+		}
+	}
+	if (!res)
+		dep[x] = 0;
+	return res;
+}
+void Output(int x) {
+	printf("%d ", x);
+	for (int i = h[x]; i != -1; i = G[i].nxt) {
+		int v = G[i].v;
+		int w = G[i].f;
+		if (!w && v > n)
+			Output(v - n);
+	}
+}
+ll Dinic() {
+	ll flow = 0;
+	while (BFS()) {
+		for (int i = L; i <= R; i++)
+			cur[i] = h[i];
+		flow += DFS(sp, LINF);
+	}
+
+	for (int i = 1; i <= n; i++)
+		fz[i] = i; 
+	for (int i = 1; i <= n; i++) {
+		for (int j = h[i]; j != -1; j = G[j].nxt) {
+			int v = G[j].v, w = G[j].f;
+			if (!w && v > n && v < tp) 
+				fz[find_(v - n)] = find_(i);
+		}
+	}
+
+	for (int i = 1; i <= n; i++) {
+		if (find_(i) == i)
+			Output(i), puts("");
+	}
+	return flow;
+}
+
+int main()
+{
+	cin >> n >> m;
+	init();
+
+	// 源点->入，出->汇点
+	for (int i = 1; i <= n; i++)
+		Add(sp, i, 1), Add(n + i, tp, 1);
+
+	for (int i = 0; i < m; i++) {
+		int u, v;
+		sc("%d %d", &u, &v);
+		Add(u, n + v, 1);
+	}
+
+	printf("%d\n", n - Dinic());
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

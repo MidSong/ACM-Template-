@@ -1,0 +1,73 @@
+struct Edge
+{
+	ll f;
+	int v, nxt;
+}G[M];
+int n, m, sp, tp;
+int h[N], cnt, L, R;
+int dep[N], cur[N];
+
+void Init() {
+	for (int i = 1; i <= n; i++)
+		h[i] = -1;
+	L = 1, R = n, cnt = 0;
+}
+void Add(int u, int v, ll f) {
+	G[cnt] = { f, v, h[u] };
+	h[u] = cnt++;
+
+	G[cnt] = { 0, u, h[v] };
+	h[v] = cnt++;
+}
+bool BFS() {
+	queue <int> q;
+	for (int i = L; i <= R; i++)
+		dep[i] = 0;
+	q.push(sp), dep[sp] = 1;
+
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+
+		for (int i = h[u]; i != -1; i = G[i].nxt) {
+			int v = G[i].v;
+			if (!dep[v] && G[i].f) {
+				dep[v] = dep[u] + 1;
+				if (v == tp)
+					return true;
+				q.push(v);
+			}
+		}
+	}
+	return false;
+}
+ll DFS(int x, ll flow) {
+	if (x == tp || !flow)
+		return flow;
+	ll k, res = 0;
+	for (int &i = cur[x]; i != -1; i = G[i].nxt) {
+		int v = G[i].v;
+		if (dep[v] == dep[x] + 1 && G[i].f) {
+			k = DFS(v, min(flow - res, G[i].f));
+			if (k) {
+				G[i].f -= k;
+				G[i ^ 1].f += k;
+				res += k;
+				if (res == flow)
+					return flow;
+			}
+		}
+	}
+	if (!res)
+		dep[x] = 0;
+	return res;
+}
+ll Dinic() {
+	ll flow = 0;
+	while (BFS()) {
+		for (int i = L; i <= R; i++)
+			cur[i] = h[i];
+		flow += DFS(sp, LINF);
+	}
+	return flow;
+}

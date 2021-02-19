@@ -1,0 +1,41 @@
+struct node
+{
+	int v, f, nxt;
+}G[N << 1];
+int h[N], cnt, scnt;
+int dfn[N], low[N];
+int stk[N], n, s;
+
+int idx;
+void Init() {
+	for (int i = 1; i <= n; i++)
+		h[i] = -1;
+	idx = 0;
+}
+void Add(int u, int v) {
+	G[idx] = { v, 0, h[u] };
+	h[u] = idx++; 
+}
+void Tarjan(int x) {
+	dfn[x] = low[x] = ++cnt;
+	stk[++s] = x;
+	for (int i = h[x]; ~i; i = G[i].nxt) {
+		if (G[i].f)
+			continue;
+		int v = G[i].v;
+		G[i].f = G[i ^ 1].f = true;
+		if (!dfn[v]) {
+			Tarjan(v);
+			Min(low[x], low[v]);
+		}
+		else
+			Min(low[x], dfn[v]);
+	}
+	if (dfn[x] == low[x]) {
+		scnt++;
+		int k;
+		do {
+			k = stk[s--];
+		} while (k != x);
+	}
+}

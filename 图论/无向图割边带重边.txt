@@ -1,0 +1,19 @@
+vector <pir> G[N];
+int dfn[N], low[N], cnt;
+
+void Tarjan(int x, int fa) {  // fa是编号
+	dfn[x] = low[x] = ++cnt;
+	for (auto it : G[x]) {
+		int v = it.first, id = it.second;
+		if (id == fa)
+			continue;
+		if (!dfn[v]) {
+			Tarjan(v, id);
+			Min(low[x], low[v]);
+			if (low[v] > dfn[x])
+				vis[id] = true;
+		}
+		else
+			Min(low[x], dfn[v]);
+	}
+}

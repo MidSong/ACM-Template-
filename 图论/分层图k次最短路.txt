@@ -1,0 +1,47 @@
+vector <pir> G[N << 1];
+int n, m, k;
+ll dis[N];
+bool vis[N];
+
+void add(int u, int v, ll w) {
+	G[u].push_back({ w, v });
+}
+void dijkstra(int s) {   // 根据需要改pir的long long
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	MEM(dis, LINF); MEM(vis, 0);
+	dis[s] = 0;
+	q.push({ 0, s });
+	while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+		int u = now.second;
+		if (vis[u])
+			continue;
+		vis[u] = true;
+		for (auto it : G[u]) {
+			int v = it.second; ll w = it.first;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				q.push({ dis[v], v });
+			}
+		}
+	}
+}
+int main()
+{
+	cin >> n >> m >> k;
+	for (int i = 0; i < m; i++) {
+		int ui, vi; ll wi;
+		sc("%d %d %lld", &ui, &vi, &wi);
+		add(ui, vi, wi); add(vi, ui, wi);
+		for (int j = 0; j < k; j++) {
+			add(ui + (j + 1) * n, vi + (j + 1) * n, wi);
+			add(vi + (j + 1) * n, ui + (j + 1) * n, wi);
+			add(ui + j * n, vi + (j + 1) * n, 0ll);
+			add(vi + j * n, ui + (j + 1) * n, 0ll);
+		}
+	}
+	dijkstra(1);
+	printf("%lld\n", dis[n + k * n]);
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

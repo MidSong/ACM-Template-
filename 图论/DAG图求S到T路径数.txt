@@ -1,0 +1,12 @@
+ll dfs(int x) {
+	if (x == n)
+		return 1;
+	if (dp[x])
+		return dp[x];
+	ll tot = 0;
+	for (auto v : G[x]) 
+		tot = (tot + dfs(v)) % Mod;
+
+	dp[x] = tot;
+	return dp[x];
+}

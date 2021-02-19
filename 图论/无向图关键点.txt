@@ -1,0 +1,225 @@
+
+// tarjan一下求割点
+
+#include<bits/stdc++.h>
+#include<unordered_map>
+using namespace std;
+
+#define sc scanf
+#define ls rt << 1
+#define rs ls | 1
+#define Min(x, y) x = min(x, y)
+#define Max(x, y) x = max(x, y)
+#define ALL(x) (x).begin(),(x).end()
+#define SZ(x) ((int)(x).size())
+#define pir pair <ll, int>
+#define MK(x, y) make_pair(x, y)
+#define MEM(x, b) memset(x, b, sizeof(x))
+#define MPY(x, b) memcpy(x, b, sizeof(x))
+#define lowbit(x) ((x) & -(x))
+#define P2(x) ((x) * (x))
+
+typedef long long ll;
+const int Mod = 1e9 + 7;
+const int N = 2e5 + 100;
+const int INF = 0x3f3f3f3f;
+const ll LINF = 0x3f3f3f3f3f3f3f3f;
+inline ll dpow(ll a, ll b){ ll r = 1, t = a; while (b){ if (b & 1)r = (r*t) % Mod; b >>= 1; t = (t*t) % Mod; }return r; }
+inline ll fpow(ll a, ll b){ ll r = 1, t = a; while (b){ if (b & 1)r = (r*t); b >>= 1; t = (t*t); }return r; }
+
+struct node
+{
+	int u, v; ll w;
+} a[N];
+vector <pir> G[N << 1];
+vector <int> e[N << 1];
+int dfn[N], low[N], n, m, cnt, scnt;
+ll d1[N], d2[N];
+bool vis[N];
+int cut[N];
+
+void init() {
+	for (int i = 1; i <= n; i++)
+		G[i].clear(), e[i].clear();
+	MEM(d1, LINF), MEM(d2, LINF);
+	MEM(dfn, 0), MEM(low, 0);
+	MEM(cut, 0);
+	cnt = scnt = 0;
+}
+void dijkstra(int s, ll *dis) {   // 根据需要改pir的long long
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	dis[s] = 0;
+	MEM(vis, 0);
+	q.push({ 0, s });
+	while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+		int u = now.second;
+		if (vis[u])
+			continue;
+		vis[u] = true;
+		for (auto it : G[u]) {
+			int v = it.second; ll w = it.first;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				q.push({ dis[v], v });
+			}
+		}
+	}
+}
+void tarjan(int x, int fa) {
+	dfn[x] = low[x] = ++cnt;
+	int son = 0;
+	for (auto v : e[x]) {
+		if (!dfn[v]) {
+			tarjan(v, x);
+			Min(low[x], low[v]);
+			if (x != fa && low[v] >= dfn[x])
+				cut[x] = 1;
+			if (x == fa)
+				son++;
+		}
+		Min(low[x], dfn[v]);
+	}
+	if (x == fa && son >= 2)
+		cut[x] = 1;
+}
+
+int main()
+{
+	int T; cin >> T;
+	while (T--) {
+		sc("%d %d", &n, &m);
+		init();
+		for (int i = 1; i <= m; i++) {
+			int u, v; ll w;
+			sc("%d %d %lld", &u, &v, &w);
+			G[u].push_back({ w, v });
+			G[v].push_back({ w, u });
+			a[i] = { u, v, w };
+		}
+		dijkstra(1, d1), dijkstra(n, d2);
+		for (int i = 1; i <= m; i++) {
+			int u = a[i].u, v = a[i].v;
+			ll w = a[i].w;
+			if (d1[u] > d1[v])
+				swap(u, v);
+			if (d1[u] + d2[v] + w == d1[n]) {
+				e[u].push_back(v), e[v].push_back(u);
+				cut[u] = cut[v] = 2;
+			}
+		}
+		for (int i = 1; i <= n; i++) {
+			if (cut[i] && !dfn[i])
+				tarjan(i, i);
+		}
+		cut[1] = cut[n] = 1;
+		for (int i = 1; i <= n; i++)
+			printf("%d ", cut[i]);
+		printf("\n");
+	}
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}
+
+// 求正反方向路径数，然后相乘看看是否是关键点，注意取模
+
+#include<bits/stdc++.h>
+#include<unordered_map>
+using namespace std;
+
+#define sc scanf
+#define ls rt << 1
+#define rs ls | 1
+#define Min(x, y) x = min(x, y)
+#define Max(x, y) x = max(x, y)
+#define ALL(x) (x).begin(),(x).end()
+#define SZ(x) ((int)(x).size())
+#define pir pair <ll, int>
+#define MK(x, y) make_pair(x, y)
+#define MEM(x, b) memset(x, b, sizeof(x))
+#define MPY(x, b) memcpy(x, b, sizeof(x))
+#define lowbit(x) ((x) & -(x))
+#define P2(x) ((x) * (x))
+
+typedef long long ll;
+const int Mod = 998244353;
+const int N = 1e3 + 100;
+const int M = 2e5 + 100;
+const int INF = 0x3f3f3f3f;
+const ll LINF = 0x3f3f3f3f3f3f3f3f;
+inline ll dpow(ll a, ll b){ ll r = 1, t = a; while (b){ if (b & 1)r = (r*t) % Mod; b >>= 1; t = (t*t) % Mod; }return r; }
+inline ll fpow(ll a, ll b){ ll r = 1, t = a; while (b){ if (b & 1)r = (r*t); b >>= 1; t = (t*t); }return r; }
+
+struct node
+{
+	int u, v; ll w;
+} a[M];
+vector <pir> G[N << 1];
+ll d1[N], d2[N];
+ll dp1[N], dp2[N];
+bool vis[N];
+int n, m, cut[N];
+
+void init() {
+	for (int i = 1; i <= n; i++)
+		G[i].clear();
+	MEM(d1, LINF), MEM(d2, LINF);
+	MEM(dp1, 0), MEM(dp2, 0), MEM(cut, 0);
+}
+void dijkstra(int s, ll *dis, ll *dp) {
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	MEM(vis, 0);
+	dis[s] = 0, dp[s] = 1;
+	q.push({ 0, s });
+	while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+		int u = now.second;
+		if (vis[u])
+			continue;
+		vis[u] = true;
+		for (auto it : G[u]) {
+			int v = it.second; ll w = it.first;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				q.push({ dis[v], v });
+				dp[v] = dp[u];
+			}
+			else if (dis[v] == dis[u] + w)
+				dp[v] = (dp[v] % Mod + dp[u] % Mod) % Mod;
+		}
+	}
+}
+
+int main()
+{
+	int T; cin >> T;
+	while (T--) {
+		sc("%d %d", &n, &m);
+		init();
+		for (int i = 0; i < m; i++) {
+			int u, v; ll w;
+			sc("%d %d %lld", &u, &v, &w);
+			G[u].push_back({ w, v });
+			G[v].push_back({ w, u });
+			a[i] = { u, v, w };
+		}
+		dijkstra(1, d1, dp1), dijkstra(n, d2, dp2);
+
+		for (int i = 1; i <= n; i++) {
+			if (d1[i] + d2[i] != d1[n])
+				cut[i] = 0;
+			else {
+				if (dp1[i] * dp2[i] % Mod == dp1[n])
+					cut[i] = 1;
+				else
+					cut[i] = 2;
+			}
+		}
+
+		for (int i = 1; i <= n; i++)
+			printf("%d ", cut[i]);
+		printf("\n");
+	}
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

@@ -1,0 +1,117 @@
+//https://vjudge.net/contest/382595#problem/J
+// 思路：跑完最大流后从源点开始遍历，如果流量不为0，
+继续DFS，最后遍历整个图，若点u标记了点v没标记，就输出
+
+struct Edge
+{
+	ll f;
+	int v, nxt;
+}G[M << 1];
+int n, m, sp, tp;
+int h[N], cnt, L, R;
+int dep[N], cur[N];
+bool vis[N];
+map <pir, bool> mp;
+
+void init() {
+	mp.clear();
+	MEM(h, -1), MEM(vis, 0);
+	L = 1, R = n, cnt = 0;
+}
+void Add(int u, int v, ll f) {
+	G[cnt].v = v, G[cnt].f = f;
+	G[cnt].nxt = h[u], h[u] = cnt++;
+
+	G[cnt].v = u, G[cnt].f = f;
+	G[cnt].nxt = h[v], h[v] = cnt++;
+}
+bool BFS() {
+	queue <int> q;
+	for (int i = L; i <= R; i++)
+		dep[i] = 0;
+	q.push(sp), dep[sp] = 1;
+
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+
+		for (int i = h[u]; i != -1; i = G[i].nxt) {
+			int v = G[i].v;
+			if (!dep[v] && G[i].f) {
+				dep[v] = dep[u] + 1;
+				q.push(v);
+			}
+		}
+	}
+	return dep[tp];
+}
+ll DFS(int x, ll flow) {
+	if (x == tp || !flow)
+		return flow;
+	ll k, res = 0;
+	for (int &i = cur[x]; i != -1; i = G[i].nxt) {
+		int v = G[i].v;
+		if (dep[v] == dep[x] + 1 && G[i].f) {
+			k = DFS(v, min(flow - res, G[i].f));
+			if (k) {
+				G[i].f -= k;
+				G[i ^ 1].f += k;
+				res += k;
+				if (res == flow)
+					return flow;
+			}
+		}
+	}
+	if (!res)
+		dep[x] = 0;
+	return res;
+}
+ll Dinic() {
+	ll flow = 0;
+	while (BFS()) {
+		for (int i = L; i <= R; i++)
+			cur[i] = h[i];
+		flow += DFS(sp, LINF);
+	}
+	return flow;
+}
+void Path(int x) {
+	vis[x] = true;
+	for (int i = h[x]; i != -1; i = G[i].nxt) {
+		int v = G[i].v;
+		int w = G[i].f;
+		if (!vis[v] && w)
+			Path(v);
+	}
+}
+
+int main()
+{
+	while (sc("%d %d", &n, &m) && n + m) {
+		sp = 1, tp = 2;
+		init();
+		for (int i = 0; i < m; i++) {
+			int u, v, w;
+			sc("%d %d %d", &u, &v, &w);
+			Add(u, v, w);
+		}
+
+		int ans = Dinic();
+		Path(sp);
+
+		for (int i = 1; i <= n; i++) {
+			for (int j = h[i]; j != -1; j = G[j].nxt) {
+				int v = G[j].v;
+				int w = G[j].f;
+				if (mp.count({ i, v }))
+					continue;
+				if (vis[i] && !vis[v] || !vis[i] && vis[v]) {
+					printf("%d %d\n", i, v);
+					mp[{i, v}] = mp[{v, i}] = true;
+				}
+			}
+		}
+		puts("");
+	}
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

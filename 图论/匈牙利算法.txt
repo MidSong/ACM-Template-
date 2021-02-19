@@ -1,0 +1,16 @@
+vector <int> G[N];
+int pre[N];
+bool vis[N];
+
+bool Find(int x) {
+	for (auto v : G[x]) {
+		if (!vis[v]) {
+			vis[v] = true;
+			if (!pre[v] || Find(pre[v])) {
+				pre[v] = x;
+				return true;
+			}
+		}
+	}
+	return false;
+}

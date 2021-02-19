@@ -1,0 +1,145 @@
+// 拓扑 + 最短路
+struct node
+{
+	int u, v, w;
+}a[N];
+vector <pir> G[N << 1], e[N << 1];
+int n, m, s1, t1, s2, t2;
+int d1[N], d2[N], d3[N], d4[N];
+int dp[N], ans;
+int in[N];
+bool vis[N];
+
+void init() {
+	MEM(d1, INF); MEM(d2, INF); MEM(d3, INF); MEM(d4, INF);
+}
+void dijkstra(int x, int *dis) {
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	MEM(vis, 0);
+	dis[x] = 0, q.push({ 0, x });
+	while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+		int u = now.second;
+		if (vis[u])
+			continue;
+		vis[u] = true;
+		for (auto it : G[u]) {
+			int v = it.second, w = it.first;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				q.push({ dis[v], v });
+			}
+		}
+	}
+}
+void topsort() {
+	queue <int> q;
+	for (int i = 1; i <= n; i++) {
+		if (!in[i])
+			q.push(i);
+	}
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+		Max(ans, dp[u]);
+		for (auto it : e[u]) {
+			int v = it.second, w = it.first;
+			in[v]--;
+			Max(dp[v], dp[u] + w);
+			if (!in[v])
+				q.push(v);
+		}
+	}
+}
+
+int main()
+{
+	cin >> n >> m;
+	cin >> s1 >> t1 >> s2 >> t2;
+	init();
+	for (int i = 1; i <= m; i++) {
+		int ui, vi, wi;
+		sc("%d %d %d", &ui, &vi, &wi);
+		G[ui].push_back({ wi, vi });
+		G[vi].push_back({ wi, ui });
+		a[i] = { ui, vi, wi };
+	}
+	dijkstra(s1, d1), dijkstra(t1, d2);
+	dijkstra(s2, d3), dijkstra(t2, d4);
+	for (int i = 1; i <= m; i++) {
+		int u = a[i].u, v = a[i].v, w = a[i].w;
+		if (d1[v] < d1[u])
+			swap(u, v);
+		if (d1[u] + d2[v] + w != d1[t1])
+			continue;
+		if (d3[v] < d3[u])
+			swap(u, v);
+		if (d3[u] + d4[v] + w == d3[t2])
+			e[u].push_back({ w, v }), in[v]++;
+	}
+	topsort();
+	printf("%d\n", ans);
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}
+
+
+// 最短路标记覆盖路径 + dp
+struct node { int u, v, w; }a[N];
+struct Edge
+{
+	int v, w, id;
+};
+vector <Edge> G[N << 1];
+int dis[4][N], dp[N];
+bool vis[N], walk[N];
+
+void dijkstra(int x, int y) {
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	MEM(dis[y], INF);
+	MEM(vis, 0); MEM(dp, 0);
+	q.push({ 0, x }), dis[y][x] = 0;
+	while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+		int u = now.second;
+		if (vis[u])
+			continue;
+		vis[u] = true;
+		for (auto it : G[u]) {
+			int v = it.v, w = it.w, id = it.id;
+			if (dis[y][v] > dis[y][u] + w) {
+				dis[y][v] = dis[y][u] + w;
+				q.push({ dis[y][v], v });
+				dp[v] = dp[u] + walk[id] * w;
+			}
+			else if (dis[y][v] == dis[y][u] + w)
+				Max(dp[v], dp[u] + walk[id] * w);
+		}
+	}
+}
+
+int main()
+{
+	int n, m, s1, t1, s2, t2;
+	cin >> n >> m;
+	cin >> s1 >> t1 >> s2 >> t2;
+	for (int i = 1; i <= m; i++) {
+		int ui, vi, wi;
+		sc("%d %d %d", &ui, &vi, &wi);
+		G[ui].push_back({ vi, wi, i });
+		G[vi].push_back({ ui, wi, i });
+		a[i] = { ui, vi, wi };
+	}
+	dijkstra(s1, 1), dijkstra(t1, 2);
+	for (int i = 1; i <= m; i++) {
+		int u = a[i].u, v = a[i].v, w = a[i].w;
+		if (dis[1][u] > dis[1][v])
+			swap(u, v);
+		if (dis[1][u] + dis[2][v] + w == dis[1][t1])
+			walk[i] = true;
+	}
+	dijkstra(s2, 3);
+	printf("%d\n", dp[t2]);
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

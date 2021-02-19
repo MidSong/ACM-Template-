@@ -1,0 +1,70 @@
+struct Edge {
+	int v, id, pre;
+};
+vector <Edge> G[N << 1];
+int dfn[N], low[N], cnt, scnt;
+int stk[N], s;
+bool ans[N];
+
+void tarjan(int x, int fa) {
+	dfn[x] = low[x] = ++cnt;
+	stk[++s] = x;
+	for (auto it : G[x]) {
+		int v = it.v;
+		if (!dfn[v]) {
+			tarjan(v, x);
+			Min(low[x], low[v]);
+		}
+		else if (v != fa)
+			Min(low[x], low[v]);
+	}
+	if (dfn[x] == low[x]) {
+		scnt++;
+		int k;
+		do {
+			k = stk[s--];
+		} while (k != x);
+
+	}
+}
+void dfs(int x, int fa) {
+	dfn[x] = low[x] = ++cnt;
+	for (auto it : G[x]) {
+		int v = it.v, id = it.id;
+		int pre = it.pre;
+		if (!dfn[v]) {
+			ans[id] = pre;
+			dfs(v, x);
+			Min(low[x], low[v]);
+		}
+		else if (v != fa) {
+			if (low[v] < low[x])
+				ans[id] = pre, low[x] = low[v];
+		}
+	}
+}
+
+int main()
+{
+	int n, m;
+	cin >> n >> m;
+	for (int i = 1; i <= m; i++) {
+		int u, v;
+		sc("%d %d", &u, &v);
+		G[u].push_back({ v, i, 1 });
+		G[v].push_back({ u, i, 0 });
+	}
+	for (int i = 1; i <= n; i++) {
+		if (!dfn[i])
+			tarjan(i, i);
+	}
+	if (scnt != 1)
+		printf("impossible\n"), exit(0);
+	MEM(dfn, 0); MEM(low, 0);
+	cnt = 0;
+	dfs(1, 1);
+	for (int i = 1; i <= m; i++)
+		printf("%d", ans[i]);
+	printf("\n");
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

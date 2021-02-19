@@ -1,0 +1,24 @@
+vector <pir> G[N];
+int dis[N], n, m;
+bool vis[N];
+
+void spfa(int x) {
+	queue <int> q;
+	MEM(dis, INF); vis[x] = true;
+	q.push(x); dis[x] = 0;
+	while (!q.empty()) {
+		int ans = q.front();
+		q.pop();
+		vis[ans] = false;
+		for (auto it : G[ans]) {
+			int vi = it.second, wi = it.first;
+			if (dis[vi] > dis[ans] + wi) {
+				dis[vi] = dis[ans] + wi;
+				if (vis[vi])
+					continue;
+				vis[vi] = true;
+				q.push(vi);
+			}
+		}
+	}
+}

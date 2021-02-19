@@ -1,0 +1,145 @@
+// 先跑一遍最大流，如果正向流量为0，该边一定是可形边
+// 如果一条边在可行路径上是唯一的边，那就是必须边
+
+// 实现方法：对残余网络跑Tarjan，遍历所有正向边，若流量为0
+// 并且两个端点不在一个集合，为可行边，若两个端点分别与起点，终点
+// 处于一个集合，那就是必须边
+struct Edge
+{
+	ll f;
+	int id, v, nxt;
+}G[M];
+int n, m, sp, tp;
+int h[N], cnt, L, R;
+int dep[N], cur[N];
+int dfn[N], low[N], idx;
+int st[N], suo[N], s, scnt;
+bool vis[N], c1[M], c2[M];
+
+void init() {
+	for (int i = 1; i <= n; i++)
+		h[i] = -1;
+	L = 1, R = n, cnt = 0;
+}
+void Add(int u, int v, int id, ll f) {
+	G[cnt] = { f, id, v, h[u] };
+	h[u] = cnt++;
+
+	G[cnt] = { 0, id, u, h[v] };
+	h[v] = cnt++;
+}
+bool BFS() {
+	queue <int> q;
+	for (int i = L; i <= R; i++)
+		dep[i] = 0;
+	q.push(sp), dep[sp] = 1;
+
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+
+		for (int i = h[u]; i != -1; i = G[i].nxt) {
+			int v = G[i].v;
+			if (!dep[v] && G[i].f) {
+				dep[v] = dep[u] + 1;
+				if (v == tp)
+					return true;
+				q.push(v);
+			}
+		}
+	}
+	return false;
+}
+ll DFS(int x, ll flow) {
+	if (x == tp || !flow)
+		return flow;
+	ll k, res = 0;
+	for (int &i = cur[x]; i != -1; i = G[i].nxt) {
+		int v = G[i].v;
+		if (dep[v] == dep[x] + 1 && G[i].f) {
+			k = DFS(v, min(flow - res, G[i].f));
+			if (k) {
+				G[i].f -= k;
+				G[i ^ 1].f += k;
+				res += k;
+				if (res == flow)
+					return flow;
+			}
+		}
+	}
+	if (!res)
+		dep[x] = 0;
+	return res;
+}
+ll Dinic() {
+	ll flow = 0;
+	while (BFS()) {
+		for (int i = L; i <= R; i++)
+			cur[i] = h[i];
+		flow += DFS(sp, LINF);
+	}
+	return flow;
+}
+void Tarjan(int x) {
+	dfn[x] = low[x] = ++idx;
+	st[++s] = x;
+	vis[x] = true;
+	for (int i = h[x]; i != -1; i = G[i].nxt) {
+		int v = G[i].v;
+		int f = G[i].f;
+		if (!f)
+			continue;
+		if (!dfn[v]) {
+			Tarjan(v);
+			Min(low[x], low[v]);
+		}
+		else if (vis[v])
+			Min(low[x], low[v]);
+	}
+	if (dfn[x] == low[x]) {
+		scnt++;
+		int k;
+		do {
+			k = st[s--];
+			vis[k] = false;
+			suo[k] = scnt;
+		} while (k != x);
+	}
+}
+
+int main()
+{
+	cin >> n >> m >> sp >> tp;
+	init();
+	for (int i = 1; i <= m; i++) {
+		int u, v, w;
+		sc("%d %d %d", &u, &v, &w);
+		Add(u, v, i, w);
+	}
+
+	int ans = Dinic();
+
+	for (int i = 1; i <= n; i++) {
+		if (!dfn[i])
+			Tarjan(i);
+	}
+
+	for (int i = 1; i <= n; i++) {
+		for (int j = h[i]; j != -1; j = G[j].nxt) {
+			int v = G[j].v;
+			int id = G[j].id;
+
+			if (G[j].f || (j & 1))
+				continue;
+
+			if (suo[i] != suo[v])
+				c1[id] = true;
+			if (suo[i] == suo[sp] && suo[v] == suo[tp])
+				c2[id] = true;
+		}
+	}
+
+	for (int i = 1; i <= m; i++)
+		printf("%d %d\n", c1[i], c2[i]);
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

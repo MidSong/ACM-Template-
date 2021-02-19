@@ -1,0 +1,46 @@
+int p[N][N], n, m;
+int dis[N], v[N];
+bool vis[N];
+int SW() {
+	int ans = INF;
+	for (int i = 0; i < n; i++) v[i] = i;
+	while (n > 1) {
+		MEM(dis, 0); MEM(vis, 0);
+		int pre = 0, k; vis[v[pre]] = true;
+		for (int i = 1; i < n; i++) {
+			k = -1;
+			for (int j = 1; j < n; j++) {
+				if (!vis[v[j]]) {
+					dis[v[j]] += p[v[pre]][v[j]];
+					if (k == -1 || dis[v[j]] > dis[v[k]]) k = j;
+				}
+			}
+			vis[v[k]] = true;
+			if (i == n - 1) {
+				Min(ans, dis[v[k]]);
+				for (int j = 0; j < n; j++) {
+					p[v[pre]][v[j]] += p[v[j]][v[k]];
+					p[v[j]][v[pre]] += p[v[j]][v[k]];
+				}
+				v[k] = v[--n];
+			}
+			pre = k;
+		}
+	}
+	return ans;
+}
+
+int main()
+{
+	while (~sc("%d %d", &n, &m)) {
+		MEM(p, 0);
+		for (int i = 0; i < m; i++) {
+			int ui, vi, wi;
+			sc("%d %d %d", &ui, &vi, &wi);
+			p[ui][vi] += wi;
+			p[vi][ui] += wi;
+		}
+		cout << SW() << endl;
+	}
+	return 0;
+}

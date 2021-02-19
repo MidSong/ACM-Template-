@@ -1,0 +1,12 @@
+vector <int> G[N << 1];
+bitset <N> bt[N];
+bool vis[N];
+void dfs(int x) {
+	vis[x] = true;
+	bt[x][x] = true;
+	for (auto v : G[x]) {
+		if (!vis[v])
+			dfs(v);
+		bt[x] |= bt[v];
+	}
+}

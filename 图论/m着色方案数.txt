@@ -1,0 +1,23 @@
+vector <int> G[N];
+int color[N], n, m, k, ans;
+
+void dfs(int x) {
+	if (x == n + 1) {
+		ans++;
+		return;
+	}
+	for (int i = 1; i <= k; i++) {
+		bool flag = true;
+		for (auto it : G[x]) {
+			if (color[it] == i) {
+				flag = false;
+				break;
+			}
+		}
+		if (flag) {
+			color[x] = i;
+			dfs(x + 1);
+			color[x] = 0;
+		}
+	}
+}

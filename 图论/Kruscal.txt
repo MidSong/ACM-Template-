@@ -1,0 +1,46 @@
+struct node
+{
+	int u, v, w; 
+	bool operator < (const node &oth) const {
+		return w < oth.w;
+	}
+}p[M];
+int f[N], n, m, edge;
+int ans;
+
+void init() {
+	for (int i = 1; i <= n; i++)
+		f[i] = i;
+}
+int find_(int x) {
+	if (x != f[x])
+		x = f[x] = find_(f[x]);
+	return x;
+}
+void unite(int x, int y) {
+	x = find_(x);
+	y = find_(y);
+	if (x != y)
+		f[x] = y;
+}
+
+int main()
+{
+	cin >> n >> m;
+	init();
+	for (int i = 1; i <= m; i++)
+		sc("%d %d %d", &p[i].u, &p[i].v, &p[i].w);
+	sort(p + 1, p + m + 1);
+	for (int i = 1; i <= m; i++) {
+		int u = p[i].u, v = p[i].v, w = p[i].w;
+		if (edge == n - 1)
+			break;
+		if (find_(u) != find_(v)) {
+			unite(u, v);
+			ans += w;
+			edge++;
+		}
+	}
+	cout << ans << endl;
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

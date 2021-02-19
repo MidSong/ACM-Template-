@@ -1,0 +1,30 @@
+vector <pir> G[N];
+int dis[N], n, m, k;
+int num[N];
+bool vis[N];
+
+bool spfa(int x) {
+	queue <int> q;
+	vis[x] = true;
+	q.push(x); dis[x] = 0;
+	num[x]++;
+	while (!q.empty()) {
+		int ans = q.front();
+		q.pop();
+		vis[ans] = false;
+		for (int i = 0; i < SZ(G[ans]); i++) {
+			int vi = G[ans][i].second, wi = G[ans][i].first;
+			if (dis[vi] > dis[ans] + wi) {
+				dis[vi] = dis[ans] + wi;
+				if (vis[vi])
+					continue;
+				vis[vi] = true;
+				num[vi]++;
+				if (num[vi] > n)
+					return true;
+				q.push(vi);
+			}
+		}
+	}
+	return false;
+}

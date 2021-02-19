@@ -1,0 +1,66 @@
+int a[N][N], n, m, ans = INF;
+int d[N][N], mid[N][N];
+vector <int> v;
+
+void init() {
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= n; j++) {
+			if (i == j)
+				a[i][j] = 0;
+			else
+				a[i][j] = INF;
+		}
+	}
+}
+void dfs(int x, int y) {
+	if (!mid[x][y])
+		return;
+	dfs(x, mid[x][y]);
+	v.push_back(mid[x][y]);
+	dfs(mid[x][y], y);
+}
+void floyd() {
+	for (int k = 1; k <= n; k++) {
+		for (int i = 1; i < k; i++) {
+			for (int j = i + 1; j < k; j++) {
+				if ((ll)d[i][j] + a[j][k] + a[k][i] < ans) {
+					ans = d[i][j] + a[j][k] + a[k][i];
+					v.clear();
+					v.push_back(i);
+					dfs(i, j);
+					v.push_back(j);
+					v.push_back(k);
+				}
+			}
+		}
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= n; j++) {
+				if (d[i][j] > d[i][k] + d[k][j]) {
+					d[i][j] = d[i][k] + d[k][j];
+					mid[i][j] = k;
+				}
+			}
+		}
+	}
+}
+
+int main()
+{
+	cin >> n >> m;
+	init();
+	for (int i = 0; i < m; i++) {
+		int ui, vi, wi;
+		sc("%d %d %d", &ui, &vi, &wi);
+		Min(a[ui][vi], wi), Min(a[vi][ui], wi);
+	}
+	MPY(d, a);
+	floyd();
+	if (ans == INF)
+		printf("No solution.\n");
+	else {
+		for (auto it : v)
+			printf("%d ", it);
+		printf("\n");
+	}
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

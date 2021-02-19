@@ -1,0 +1,82 @@
+//https://ac.nowcoder.com/acm/problem/19789
+#pragma GCC optimize(3)
+#include<bits/stdc++.h>
+#include<unordered_map>
+using namespace std;
+
+#define sc scanf
+#define Min(x, y) x = min(x, y)
+#define Max(x, y) x = max(x, y)
+#define ALL(x) (x).begin(),(x).end()
+#define SZ(x) ((int)(x).size())
+#define pir pair <ll, int>
+#define MK(x, y) make_pair(x, y)
+#define MEM(x, b) memset(x, b, sizeof(x))
+#define MPY(x, b) memcpy(x, b, sizeof(x))
+#define lowbit(x) ((x) & -(x))
+#define P2(x) ((x) * (x))
+
+typedef long long ll;
+const int Mod = 1e9 + 7;
+const int N = 2e5 + 100;
+const int INF = 0x3f3f3f3f;
+const ll LINF = 0x3f3f3f3f3f3f3f3f;
+inline ll dpow(ll a, ll b){ ll r = 1, t = a; while (b){ if (b & 1)r = (r*t) % Mod; b >>= 1; t = (t*t) % Mod; }return r; }
+inline ll fpow(ll a, ll b){ ll r = 1, t = a; while (b){ if (b & 1)r = (r*t); b >>= 1; t = (t*t); }return r; }
+
+vector <pir> G[N];
+ll dis[N], d[N];
+int n, m, p;
+int a[N], prv[N];
+bool vis[N];
+
+void Dijkstra() {
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	MEM(dis, LINF), MEM(d, LINF);
+	for (int i = 1; i <= p; i++) {
+		dis[a[i]] = 0;
+		prv[a[i]] = a[i];
+		q.push({ 0, a[i] });
+	}
+
+	while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+		int u = now.second;
+		if (vis[u])
+			continue;
+		vis[u] = true;
+
+		for (auto it : G[u]) {
+			int v = it.second; ll w = it.first;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				prv[v] = prv[u];
+				q.push({ dis[v], v });
+			}
+			else if (prv[u] != prv[v]) {
+				ll cost = dis[u] + dis[v] + w;
+				Min(d[prv[u]], cost);
+				Min(d[prv[v]], cost);
+			}
+		}
+	}
+}
+
+int main()
+{
+	cin >> n >> m >> p;
+	for (int i = 1; i <= p; i++)
+		sc("%d", &a[i]);
+	for (int i = 0; i < m; i++) {
+		int u, v; ll w;
+		sc("%d %d %lld", &u, &v, &w);
+		G[u].push_back({ w, v });
+		G[v].push_back({ w, u });
+	}
+	Dijkstra();
+	for (int i = 1; i <= p; i++)
+		printf("%lld ", d[a[i]]);
+	puts("");
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

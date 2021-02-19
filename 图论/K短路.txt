@@ -1,0 +1,77 @@
+struct Edge {
+	int v, nxt;
+	ll w;
+}G[N * 100], Gr[N * 100];
+struct Node {
+	int v;
+	ll g, h;
+	bool operator < (const Node &oth) const {
+		if (g + h != oth.g + oth.h)
+			return g + h > oth.g + oth.h;
+		return g > oth.g;
+	}
+};
+int h[N], rh[N], idx;
+int n, m, sp, tp, k, mxt;  // 起点，终点，k
+ll dis[N];
+bool vis[N];
+
+void init() {
+	for (int i = 1; i <= n; i++)
+		h[i] = rh[i] = 0;
+	idx = 0;
+}
+void Add(int u, int v, ll w) {
+	G[++idx] = { v, h[u], w };
+	h[u] = idx;
+	Gr[idx] = { u, rh[v], w };
+	rh[v] = idx;
+}
+void Dijkstra() {
+	for (int i = 1; i <= n; i++)
+		dis[i] = LINF, vis[i] = false;
+	dis[tp] = 0;
+	priority_queue <Node> q;
+	q.push({ tp, 0, 0 });
+
+	while (!q.empty()) {
+		Node now = q.top();
+		int u = now.v;
+		ll d = now.h;
+		q.pop();
+		vis[u] = true;
+
+		for (int i = rh[u]; i; i = Gr[i].nxt) {
+			int v = Gr[i].v;
+			ll w = Gr[i].w;
+			if (!vis[v] && dis[v] > d + w) {
+				dis[v] = d + w;
+				q.push({ v, 0, dis[v] });
+			}
+		}
+	}
+}
+ll Astar() {
+	if (sp == tp)
+		k++;
+	Dijkstra();
+	if (dis[sp] == LINF)
+		return -1;
+	priority_queue <Node> q;
+	q.push({ sp, 0, 0 });
+
+	while (!q.empty()) {
+		Node now = q.top();
+		int u = now.v;
+		ll d = now.g;
+		q.pop();
+		if (u == tp && --k == 0)
+			return d;
+		for (int i = h[u]; i; i = G[i].nxt) {
+			int v = G[i].v;
+			ll w = G[i].w;
+			q.push({ v, d + w, dis[v] });
+		}
+	}
+	return -1;
+}

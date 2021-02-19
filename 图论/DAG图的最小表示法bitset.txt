@@ -1,0 +1,55 @@
+vector <int> G[N];
+bitset <N> bt[N];
+int in[N], n, m;
+int cnt[N];
+pir s[N];
+
+bool cmp(int a, int b) {
+	return cnt[a] < cnt[b];
+}
+void topsort() {
+	queue <int> q;
+	for (int i = 1; i <= n; i++) {
+		if (!in[i])
+			q.push(i);
+	}
+	int tot = 0;
+	while (!q.empty()) {
+		int u = q.front();
+		q.pop();
+		cnt[u] = ++tot;
+		s[u] = { tot, u };
+		for (auto v : G[u]) {
+			in[v]--;
+			if (!in[v])
+				q.push(v);
+		}
+	}
+}
+
+int main()
+{
+	cin >> n >> m;
+	for (int i = 0; i < m; i++) {
+		int ui, vi;
+		sc("%d %d", &ui, &vi);
+		G[ui].push_back(vi);
+		in[vi]++;
+	}
+	topsort();
+	sort(s + 1, s + n + 1, greater <pir>());
+	for (int i = 1; i <= n; i++)
+		sort(ALL(G[i]), cmp);
+	int ans = 0;
+	for (int i = 1; i <= n; i++) {
+		int u = s[i].second;
+		for (auto v : G[u]) {
+			if (!bt[u][v])
+				bt[u][v] = true, bt[u] |= bt[v];
+			else
+				ans++;
+		}
+	}
+	cout << ans << endl;
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

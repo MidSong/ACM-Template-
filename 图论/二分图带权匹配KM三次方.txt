@@ -1,0 +1,43 @@
+ll lx[N], ly[N], visy[N], w[N][N];
+ll slk[N], pre[N], link[N];
+int n;
+
+void bfs(int k) {
+	int x, y = 0, yy = 0, delta;
+	MEM(pre, 0);
+	for (int i = 1; i <= n; i++)
+		slk[i] = LINF;
+	link[y] = k;
+	while (true) {
+		x = link[y], delta = LINF, visy[y] = 1;
+		for (int i = 1; i <= n; i++) {
+			if (!visy[i]) {
+				if (slk[i] > lx[x] + ly[i] - w[x][i])
+					slk[i] = lx[x] + ly[i] - w[x][i], pre[i] = y;
+				if (slk[i] < delta)
+					delta = slk[i], yy = i;
+			}
+		}
+		for (int i = 0; i <= n; i++) {
+			if (visy[i])
+				lx[link[i]] -= delta, ly[i] += delta;
+			else
+				slk[i] -= delta;
+		}
+		y = yy;
+		if (link[y] == -1)
+			break;
+	}
+	while (y)
+		link[y] = link[pre[y]], y = pre[y];
+}
+int KM() {
+	MEM(link, -1);
+	for (int i = 1; i <= n; i++)
+		MEM(visy, 0), bfs(i);
+	int res = 0;
+	for (int i = 1; i <= n; i++)
+		if (link[i])
+			res += w[link[i]][i];
+	return res;
+}

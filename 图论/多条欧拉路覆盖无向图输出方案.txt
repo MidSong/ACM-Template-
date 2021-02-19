@@ -1,0 +1,94 @@
+struct Edge
+{
+	int v, nxt;
+}G[M];
+vector <int> vec[N], ans[N];
+int h[N], cnt, idx;
+int dep[N], n, m;
+bool ver[N], edge[M];
+
+void Init() {
+	for (int i = 0; i <= n; i++)
+		vec[i].clear(), ans[i].clear();
+	MEM(h, -1), MEM(dep, 0);
+	MEM(ver, 0), MEM(edge, 0);
+	cnt = idx = 0;
+}
+void Add(int u, int v) {
+	G[cnt] = { v, h[u] };
+	h[u] = cnt++;
+}
+void DFS(int x) {
+	ver[x] = true;
+	for (int i = h[x]; i != -1; i = G[i].nxt) {
+		int v = G[i].v;
+		if (edge[i])
+			continue;
+		edge[i] = edge[i ^ 1] = true;
+		DFS(v);
+
+		if (i >= 2 * m)
+			idx++;
+		else if (i != -1)
+			vec[idx].push_back(i);
+	}
+}
+
+int main()
+{
+	while (~sc("%d %d", &n, &m)) {
+		Init();
+
+		for (int i = 0; i < m; i++) {
+			int u, v;
+			sc("%d %d", &u, &v);
+			Add(u, v), Add(v, u);
+			dep[u]++, dep[v]++;
+		}
+
+		int lst = -1;
+		for (int i = 1; i <= n; i++) {
+			if (!(dep[i] & 1))
+				continue;
+			if (lst == -1)
+				lst = i;
+			else {
+				Add(lst, i);
+				Add(i, lst);
+				lst = -1;
+			}
+		}
+
+		for (int i = 1; i <= n; i++) {
+			if (!ver[i] && (dep[i] & 1))
+				idx++, DFS(i);
+		}
+		for (int i = 1; i <= n; i++) {
+			if (!ver[i])
+				idx++, DFS(i);
+		}
+
+		int scnt = 0;
+		for (int i = 1; i <= idx; i++) {
+			if (vec[i].empty())
+				continue;
+			
+			++scnt;
+			for (int j = SZ(vec[i]) - 1; j >= 0; j--)
+				ans[scnt].push_back(vec[i][j]);
+		}
+
+		printf("%d\n", scnt);
+		for (int i = 1; i <= scnt; i++) {
+			printf("%d ", SZ(ans[i]));
+			for (auto it : ans[i]) {
+				if (it & 1)
+					it ^= 1, printf("-%d ", it / 2 + 1);
+				else
+					printf("%d ", it / 2 + 1);
+			}
+			puts("");
+		}
+	}
+	return 0;  // 改数组大小!!!用pair记得改宏定义!!!
+}

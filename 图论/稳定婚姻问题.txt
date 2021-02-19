@@ -1,0 +1,70 @@
+/*有N男N女，每个人都按照他对异性的喜欢程度排名。现在需要写出一个算法安排这N个男的、N个女的结婚，要求两个人的婚姻应该是稳定的。
+
+何为稳定？
+
+有两对夫妻M1 F2，M2 F1。M1心目中更喜欢F1，但是他和F2结婚了，M2心目中更喜欢F2，但是命运却让他和F1结婚了，显然这样的婚姻是不稳定的，随时都可能发生M1和F1私奔或者M2和F2私奔的情况。所以在做出匹配选择的时候（也就是结婚的时候），我们需要做出稳定的选择，以防这种情况的发生。*/
+
+原文链接：https://blog.csdn.net/cscmaker/article/details/8291131
+int man_que[N][N], wom_que[N][N];
+int wif[N], hus[N], nxt[N], n, T;
+map <char, int> id_man, id_wom;
+map <int, char> name_man, name_wom;
+string line;
+queue <int> q;
+void init() {
+	id_man.clear(), id_wom.clear(), name_man.clear(), name_wom.clear();
+	MEM(nxt, 0); MEM(man_que, 0); MEM(wom_que, 0);
+	MEM(wif, 0); MEM(hus, 0);
+}
+void Engage(int x, int y) {
+	int m = hus[y];
+	if (m) {
+		wif[m] = 0;
+		q.push(m);
+	}
+	wif[x] = y, hus[y] = x;
+}
+
+int main()
+{
+	cin >> T;
+	while (T--) {
+		sc("%d", &n); init();
+		for (int i = 1; i <= n; i++) {
+			cin >> line;
+			id_man[line[0]] = i, name_man[i] = line[0];
+		}
+		for (int i = 1; i <= n; i++) {
+			cin >> line;
+			id_wom[line[0]] = i, name_wom[i] = line[0];
+		}
+		for (int i = 1; i <= n; i++) {
+			cin >> line; int tot = 0;
+			int k = id_man[line[0]];
+			for (int j = 2; j < SZ(line); j++)
+				man_que[k][++tot] = id_wom[line[j]];
+			wif[i] = 0; nxt[i] = 1; q.push(i);
+		}
+		for (int i = 1; i <= n; i++) {
+			cin >> line; int tot = 0;
+			int k = id_wom[line[0]];
+			for (int j = 2; j < SZ(line); j++)
+				wom_que[k][id_man[line[j]]] = ++tot;
+			hus[i] = 0;
+		}
+		while (!q.empty()) {
+			int m = q.front(); q.pop();
+			int w = man_que[m][nxt[m]++];
+			if (w == 0) continue;
+			if (!hus[w]) Engage(m, w);
+			else if (wom_que[w][m] < wom_que[w][hus[w]])
+				Engage(m, w);
+			else q.push(m);
+		}
+		while (!q.empty()) q.pop();
+		for (map <char, int> ::iterator it = id_man.begin(); it != id_man.end(); it++)
+			cout << it->first << " " << name_wom[wif[it->second]] << endl;
+		cout << endl;
+	}
+	return 0;
+}

@@ -1,0 +1,26 @@
+vector <pir> G[N];
+int dis[N], n, m;
+bool vis[N];
+
+void Dijkstra(int s) {   // 根据需要改pir的long long
+	priority_queue <pir, vector <pir>, greater <pir>> q;
+	MEM(dis, INF); MEM(vis, 0);
+	dis[s] = 0;
+	q.push({ 0, s });
+	
+        while (!q.empty()) {
+		pir now = q.top();
+		q.pop();
+		int u = now.second;
+		if (vis[u])
+			continue;
+		vis[u] = true;
+		for (auto it : G[u]) {
+			int v = it.second, w = it.first;
+			if (dis[v] > dis[u] + w) {
+				dis[v] = dis[u] + w;
+				q.push({ dis[v], v });
+			}
+		}
+	}
+}

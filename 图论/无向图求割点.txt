@@ -1,0 +1,25 @@
+vector <int> G[N << 1]; 
+int dfn[N], low[N], cnt, scnt;
+bool cut[N];
+
+void Tarjan(int x, int fa) {
+	dfn[x] = low[x] = ++cnt;
+	int son = 0;
+	for (auto v : G[x]) {
+		if (!dfn[v]) {
+			Tarjan(v, x);
+			Min(low[x], low[v]);
+			if (x != fa && low[v] >= dfn[x])
+				cut[x] = 1;
+			if (x == fa)
+				son++;
+		}
+		Min(low[x], dfn[v]);
+	}
+	if (x == fa && son >= 2)
+		cut[x] = 1;
+}
+for (int i = 1; i <= n; i++) {
+	if (!dfn[i])
+		Tarjan(i, i);
+}
